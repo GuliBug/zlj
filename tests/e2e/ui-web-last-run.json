@@ -1,0 +1,18 @@
+{
+  "runAt": "2026-10-23T00:12:00+08:00",
+  "total": 11,
+  "passed": 11,
+  "results": [
+    { "id": "WC-01", "name": "管理端页面真实登录", "pass": true, "detail": "ADM-b2bb04" },
+    { "id": "WC-02", "name": "工作台渲染（指标卡/概览）", "pass": true, "detail": "命中 [class*=stat]" },
+    { "id": "WC-03", "name": "商品列表渲染（表格）", "pass": true, "detail": "命中 .el-table" },
+    { "id": "WC-04", "name": "新增商品页违禁词实时拦截", "pass": true, "detail": "steps=true banned=true" },
+    { "id": "WC-05", "name": "库存管理三页签（总览/流水/盘点）", "pass": true, "detail": "库存总览/库存流水/盘点单" },
+    { "id": "WC-06", "name": "门店管理渲染", "pass": true, "detail": "命中 .el-table" },
+    { "id": "WC-07", "name": "订单管理渲染（表格+筛选）", "pass": true, "detail": "命中 .el-table" },
+    { "id": "WC-08", "name": "售后管理渲染", "pass": true, "detail": "命中 .el-table" },
+    { "id": "WC-09", "name": "会员管理渲染（等级卡+列表）", "pass": true, "detail": "命中 .el-table" },
+    { "id": "WC-10", "name": "审计与告警页", "pass": true, "detail": "命中 .el-tabs__item" },
+    { "id": "WC-ERR", "name": "全程无页面 JS 异常", "pass": true, "detail": "clean" }
+  ]
+}

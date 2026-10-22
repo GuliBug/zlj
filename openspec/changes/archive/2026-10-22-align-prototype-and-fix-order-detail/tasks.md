@@ -1,0 +1,30 @@
+# Tasks: 2026-10-22-align-prototype-and-fix-order-detail
+
+## 1. P0 缺陷修复
+- [x] 1.1 订单详情返回 items 商品明细（OrderService.orderDetailVo + itemVos 补 skuId/subtotal）
+- [x] 1.2 接口探测验证（真实下单 → 详情 items 完整）
+
+## 2. H5 对齐原型（17 页）
+- [x] 2.1 品牌导航/警示条/hero/四宫格/分档 chips/红金商品卡
+- [x] 2.2 详情四正本纪块、购物车原型化、结算 .seg、支付结果话术
+- [x] 2.3 订单 6 Tab + 出示核销码按钮、订单详情动态核销码
+- [x] 2.4 我的掌柜卡+四格统计、新增门店信息/核销码页、TabBar 4 项
+- [x] 2.5 GoodsMedia 统一品牌占位防破图、npm run build 通过
+
+## 3. Web 对齐原型
+- [x] 3.1 侧栏 7 菜单 + 主色 #8f1d22 + 顶栏角色区
+- [x] 3.2 工作台 4 指标卡 + 今日概览 + 资损监控入口（/audit-alerts）
+- [x] 3.3 商品新增独立页（三步步骤条 + 快捷生成 + 批量填充 + 违禁词实时校验）
+- [x] 3.4 门店营业时间 + 核销记录面板、订单/售后超时提示、会员等级分布卡
+- [x] 3.5 npm run build:prod 通过
+
+## 4. 种子与搜索
+- [x] 4.1 Store +operatingHours 字段，3 家原型门店
+- [x] 4.2 四档分类 + 6 原型商品 + 等级名对齐
+- [x] 4.3 keyword 增加品牌匹配
+
+## 5. 回归与文档
+- [x] 5.1 接口级 E2E 89/89、UI 级 UC 6/6
+- [x] 5.2 截图核验（h5-home / web-dashboard / web-products）
+- [x] 5.3 测试用例/测试报告更新（UC 章节 + BUG-06/07/08）
+- [x] 5.4 主规格库同步

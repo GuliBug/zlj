@@ -1,0 +1,6 @@
+id: 2026-10-22-fix-cart-ui-and-deps
+schema: spec-driven
+created: 2026-10-22
+status: archived
+capabilities: [h5-client, web-admin]
+summary: 修复购物车结算栏被 TabBar 遮挡（P0）；新增 UI 级 E2E（UC-01~06 elementFromPoint 防遮挡断言）；前端依赖对齐 qingguoji-mall（web 补 js-cookie/nprogress/sass/eslint 工具链，h5 工具链对齐、保留纯 Vue3 不引入 Taro）。

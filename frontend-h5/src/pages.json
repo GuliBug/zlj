@@ -1,0 +1,38 @@
+{
+  "window": {
+    "backgroundColor": "#F5F0E8",
+    "navigationBarBackgroundColor": "#8F1D22",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "正隆記 · 槟榔商城"
+  },
+  "pages": [
+    { "path": "Home", "route": "/", "title": "首页", "auth": false, "tab": true },
+    { "path": "Category", "route": "/category", "title": "全部商品", "auth": false, "tab": true },
+    { "path": "ProductDetail", "route": "/product/:id", "title": "商品详情", "auth": false, "tab": false },
+    { "path": "Cart", "route": "/cart", "title": "购物车", "auth": true, "tab": true },
+    { "path": "Checkout", "route": "/checkout", "title": "确认订单", "auth": true, "tab": false },
+    { "path": "PayResult", "route": "/pay-result/:no", "title": "支付结果", "auth": true, "tab": false },
+    { "path": "Orders", "route": "/orders", "title": "我的订单", "auth": true, "tab": false },
+    { "path": "OrderDetail", "route": "/order/:no", "title": "订单详情", "auth": true, "tab": false },
+    { "path": "VerifyCode", "route": "/verify-code", "title": "门店核销码", "auth": true, "tab": false },
+    { "path": "AftersaleNew", "route": "/aftersale/new/:orderNo", "title": "申请售后", "auth": true, "tab": false },
+    { "path": "AftersaleDetail", "route": "/aftersale/:no", "title": "售后详情", "auth": true, "tab": false },
+    { "path": "AftersaleList", "route": "/aftersales", "title": "售后记录", "auth": true, "tab": false },
+    { "path": "Addresses", "route": "/addresses", "title": "收货地址", "auth": true, "tab": false },
+    { "path": "AddressEdit", "route": "/address-edit/:id?", "title": "编辑地址", "auth": true, "tab": false },
+    { "path": "Stores", "route": "/stores", "title": "门店信息", "auth": false, "tab": false },
+    { "path": "Member", "route": "/member", "title": "我的", "auth": true, "tab": true },
+    { "path": "Login", "route": "/login", "title": "登录", "auth": false, "tab": false }
+  ],
+  "tabBar": {
+    "color": "#8A7F74",
+    "selectedColor": "#8F1D22",
+    "backgroundColor": "#FFFDF8",
+    "list": [
+      { "pagePath": "/", "text": "首页", "icon": "🏮" },
+      { "pagePath": "/category", "text": "全部商品", "icon": "📜" },
+      { "pagePath": "/cart", "text": "购物车", "icon": "🛒", "badge": "cart" },
+      { "pagePath": "/member", "text": "我的", "icon": "👤" }
+    ]
+  }
+}

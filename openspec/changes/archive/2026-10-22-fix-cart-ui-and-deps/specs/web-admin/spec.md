@@ -1,0 +1,2 @@
+### Requirement: WA-17 依赖与脚本对齐参考工程
+Web 管理端 package.json SHALL 逐版本对齐 qingguoji-mall-web：dependencies（@element-plus/icons-vue 2.3.2 / axios 1.13.2 / element-plus 2.13.1 / js-cookie 3.0.5 / nprogress 0.2.0 / pinia 3.0.4 / vue 3.5.26 / vue-router 4.6.4）与 devDependencies（vite 6.4.1 / @vitejs/plugin-vue 5.2.4 / sass 1.83.0 / eslint 9 + prettier 全套）；scripts SHALL 提供 build:prod / preview(5174) / lint / format，与参考工程命名一致。

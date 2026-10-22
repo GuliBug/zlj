@@ -1,0 +1,49 @@
+{
+  "runAt": "2026-10-22T16:20:12.466Z",
+  "total": 7,
+  "passed": 7,
+  "results": [
+    {
+      "id": "UC-01",
+      "name": "H5 页面真实登录成功",
+      "pass": true,
+      "detail": "MBR-0048"
+    },
+    {
+      "id": "UC-02",
+      "name": "详情页加入购物车（购物车数量增加）",
+      "pass": true,
+      "detail": "totalQuantity=2"
+    },
+    {
+      "id": "UC-02B",
+      "name": "购物车页角标与数量同步",
+      "pass": true,
+      "detail": "badge=2"
+    },
+    {
+      "id": "UC-03",
+      "name": "购物车「结算」按钮可见且可点击",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-04",
+      "name": "确认订单页「提交订单」可见且可点击",
+      "pass": true,
+      "detail": "url=http://localhost:10086/#/checkout"
+    },
+    {
+      "id": "UC-05",
+      "name": "提交订单→立即支付→跳转支付结果",
+      "pass": true,
+      "detail": "url=http://localhost:10086/#/pay-result/20261023002005182029?from=checkout"
+    },
+    {
+      "id": "UC-06",
+      "name": "商品详情吸底操作栏可见且可点击",
+      "pass": true,
+      "detail": ""
+    }
+  ]
+}

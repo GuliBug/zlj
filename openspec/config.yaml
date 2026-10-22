@@ -1,0 +1,51 @@
+schema: spec-driven
+
+context: |
+  项目：正隆记槟榔商城（zhenglongji-mall），槟榔品牌「正隆记」的线上商城，含 H5 商城端（买家）与 Web 管理端（门店运营）。
+  目标：打通「浏览→加购→下单→支付→发货/自提核销→收货→售后」闭环，含掌柜卡会员体系与库存三维口径管理。
+  需求来源：D:/projects/zlj/需求/槟榔商城-PRD-v1.0.md（v1.8，FR-01~FR-16，含订单/售后状态机、资金安全三件套）。
+  技术栈：
+    - 后端：Spring Boot 3.5 + JDK 21 + Spring Data JPA，开发用 H2、生产用 MySQL；
+            若依（RuoYi）风格分层（common / framework / mall），统一 AjaxResult 响应。
+    - Web 管理端：Vue3 + Element Plus + Vite + Pinia（frontend-web/，端口 5173）。
+    - H5 客户端：Vue3 + Vite + TypeScript（frontend-h5/，端口 10086；PRD 仅要求 H5 端，无需小程序编译目标，故不引入 Taro）。
+    - 测试：Node E2E（tests/e2e/e2e-mall.mjs，真实 HTTP 对账全部接口，输出测试报告）。
+  工程边界：前后端彻底分离，后端不托管任何前端页面；客户端接口 /api/**，管理端接口 /admin-api/**。
+  令牌：买家令牌前缀 MBR-、管理员令牌前缀 ADM-，均经请求头 X-Token 传递，拦截器按 @RequireLogin(LoginType) 校验。
+  合规底线（硬编码，不可配置关闭）：健康警示语「长期过量咀嚼槟榔，有害口腔健康」、「不向未成年人销售」提示、
+  商品文案违禁词校验、资金与上下架操作审计日志。已按业务决策移除：RBAC/合规中心、售卖区域限制、优惠券、商品资质字段。
+  模拟通道（PRD 外部阻塞项 RK-01 未决）：支付为模拟通道（回调+主动查询双通道语义保留）、短信验证码固定 123456；
+  正式接入微信支付/支付宝与短信服务商时仅需替换通道实现，不影响状态机与幂等设计。
+  资金安全三件套：下单幂等键 5 分钟去重；退款幂等（售后单号+序号）；每日对账任务与资损监控告警（重复支付/异常金额/状态回跳/对账差异）。
+  质量门禁（每个 change 的收尾任务必须包含）：后端 mvnw 构建通过；前端 npm run build 零报错；
+  E2E 全部用例通过并生成测试报告（docs/测试报告.md）。
+  契约权威：openspec/specs/api-contract/spec.md 是前后端唯一契约来源；前端对契约有疑问时在对应 change 的
+  design.md「契约疑问」章节记录，由后端确认后更新，禁止直接改主规格。
+  语言：本仓库所有规划产物用中文撰写，技术标识符（类名/接口路径/字段）保留英文原文。
+  提交：禁止 AI 自动 commit / push；由人工确认后提交。
+
+rules:
+  proposal:
+    - 用中文描述「做什么 / 为什么」，并显式列出 out of scope（本期不做项）。
+    - 每个变更都要能回溯到需求编号（如 FR-04-2、FR-11-3）或明确为新增能力。
+  design:
+    - 涉及接口变动时，必须同时更新 api-contract 能力的主规格（经 change 的 specs delta）。
+    - 跨端（前端/后端）协作的变更，在 design.md 写明各方责任与对接点。
+  specs:
+    - 需求条目用 Requirement + Scenario 结构，保留原 PRD 编号作为可追溯锚点（如 ### Requirement: FR-04-2 下单幂等）。
+    - 状态为 ⚠️/⬜ 的需求要明确标注 gap，便于后续变更候选跟踪。
+  tasks:
+    - 任务拆到可在一次会话内完成的粒度；每条任务标注对应的需求编号。
+    - 收尾任务必须含质量门禁（build / test / e2e）与契约同步。
+
+operations:
+  apply:
+    guidance:
+      - 实现前先读取对应能力的 openspec/specs/<cap>/spec.md 作为当前事实来源。
+      - 代码改动完成后，先在本机跑质量门禁（后端构建 / 前端 build / E2E），全绿再标记任务完成。
+      - 不自动提交；由人工在确认后提交。
+  archive:
+    guidance:
+      - 归档前确认所有任务已完成且门禁通过。
+      - 归档时同步 delta 规格到主规格库，并在摘要中说明本次变更触达的需求编号与新增/修改的能力。
+      - 若存在 ⚠️/⬜ gap，记录在归档摘要，便于后续变更跟进。

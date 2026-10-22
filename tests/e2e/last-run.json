@@ -1,0 +1,544 @@
+{
+  "runAt": "2026/10/23 00:20:19",
+  "base": "http://localhost:8080",
+  "total": 89,
+  "passed": 89,
+  "failed": 0,
+  "rate": "100.0",
+  "results": [
+    {
+      "id": "TC-FR-01-01",
+      "name": "错误验证码登录被拒绝",
+      "pass": true,
+      "detail": "验证码错误"
+    },
+    {
+      "id": "TC-FR-01-01",
+      "name": "手机号+验证码登录（新号自动注册）",
+      "pass": true,
+      "detail": "token 前缀 MBR-"
+    },
+    {
+      "id": "TC-PL-01",
+      "name": "未登录访问购物车被拦截",
+      "pass": true,
+      "detail": "请先登录"
+    },
+    {
+      "id": "TC-PL-07",
+      "name": "会员信息手机号脱敏展示",
+      "pass": true,
+      "detail": "phone=139****8559, level=普通会员"
+    },
+    {
+      "id": "TC-FR-02-01",
+      "name": "商品列表分页结构 {total,rows}",
+      "pass": true,
+      "detail": "共 5 条"
+    },
+    {
+      "id": "TC-FR-02-01",
+      "name": "买家列表不返回下架商品",
+      "pass": true,
+      "detail": "首条 正隆究 · 1000果 典藏"
+    },
+    {
+      "id": "TC-FR-02-02",
+      "name": "详情含 SKU 列表与库存",
+      "pass": true,
+      "detail": "SKU 1 个"
+    },
+    {
+      "id": "TC-FR-02-02",
+      "name": "警示语硬编码强制返回",
+      "pass": true,
+      "detail": "长期过量咀嚼槟榔，有害口腔健康"
+    },
+    {
+      "id": "TC-FR-02-05",
+      "name": "未成年人提示强制返回",
+      "pass": true,
+      "detail": "不向未成年人销售"
+    },
+    {
+      "id": "TC-FR-02-01",
+      "name": "关键字搜索命中",
+      "pass": true,
+      "detail": "命中 5 条"
+    },
+    {
+      "id": "TC-FR-03-01",
+      "name": "重复加购同 SKU 数量累加",
+      "pass": true,
+      "detail": "quantity=3"
+    },
+    {
+      "id": "TC-FR-03-02",
+      "name": "购物车改数量与勾选生效",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-08-01",
+      "name": "地址新增（纯文本）",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-FR-08-01",
+      "name": "地址列表返回默认地址",
+      "pass": true,
+      "detail": "共 1 条"
+    },
+    {
+      "id": "TC-FR-08-01",
+      "name": "地址手机号校验（非法手机号拒绝）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-PL-02",
+      "name": "管理端错误密码登录被拒",
+      "pass": true,
+      "detail": "账号或密码错误"
+    },
+    {
+      "id": "TC-PL-02",
+      "name": "管理员登录（ADM- 令牌）",
+      "pass": true,
+      "detail": "平台管理员"
+    },
+    {
+      "id": "TC-FR-16-01",
+      "name": "工作台核心指标齐全（GMV/订单/支付率/待发货/待售后/趋势）",
+      "pass": true,
+      "detail": "GMV=60.00 元, 支付率=100%"
+    },
+    {
+      "id": "TC-FR-02-03",
+      "name": "违禁词校验命中功效宣传词",
+      "pass": true,
+      "detail": "命中 [\"保健\",\"功效\",\"提神\",\"醒脑\"]"
+    },
+    {
+      "id": "TC-FR-02-03",
+      "name": "含违禁词商品保存被阻断",
+      "pass": true,
+      "detail": "内容命中违禁词: 提神、醒脑"
+    },
+    {
+      "id": "TC-FR-10-01",
+      "name": "商品新增（含 SKU/图片/分类）成功",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-FR-04-01",
+      "name": "运费规则：商品合计满 99 元包邮",
+      "pass": true,
+      "detail": "商品合计 120.00 元，运费 0.00 元"
+    },
+    {
+      "id": "TC-FR-04-02",
+      "name": "同幂等键重复提交不产生重复订单",
+      "pass": true,
+      "detail": "单号 20261023002018182030 → 20261023002018182030"
+    },
+    {
+      "id": "TC-FR-04-03",
+      "name": "下单预占库存（可用减少）",
+      "pass": true,
+      "detail": "可用 297 → 293"
+    },
+    {
+      "id": "TC-FR-04-03",
+      "name": "库存不足下单失败并返回缺货信息",
+      "pass": true,
+      "detail": "商品「三号究 · 正隆记门店同款 三号究 单包」库存不足，剩余可购 293"
+    },
+    {
+      "id": "TC-FR-04-07",
+      "name": "单笔实付超 5000 元被风控拦截",
+      "pass": true,
+      "detail": "单笔订单应付不能超过 5000 元"
+    },
+    {
+      "id": "TC-FR-04-06",
+      "name": "模拟支付成功（回调+查询双通道语义）",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-FR-04-06",
+      "name": "支付后订单转待发货",
+      "pass": true,
+      "detail": "待发货"
+    },
+    {
+      "id": "TC-FR-11-05",
+      "name": "支付成功后库存实扣",
+      "pass": true,
+      "detail": "可用 293"
+    },
+    {
+      "id": "TC-FR-07-02",
+      "name": "支付成功按实付发放积分（1 元=1 积分）",
+      "pass": true,
+      "detail": "积分 120，实付 120.00 元"
+    },
+    {
+      "id": "TC-FR-04-06",
+      "name": "重复支付被拒（幂等）",
+      "pass": true,
+      "detail": "订单状态不允许支付"
+    },
+    {
+      "id": "TC-PL-04",
+      "name": "资损监控登记重复支付告警",
+      "pass": true,
+      "detail": "告警数 2"
+    },
+    {
+      "id": "TC-FR-05-02",
+      "name": "取消待支付订单并释放预占",
+      "pass": true,
+      "detail": "状态 CLOSED，可用 293→293"
+    },
+    {
+      "id": "TC-O-04",
+      "name": "禁止状态回跳（已关闭订单再次支付被拒）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-05-01",
+      "name": "订单列表按状态筛选（待发货）",
+      "pass": true,
+      "detail": "共 1 单"
+    },
+    {
+      "id": "TC-FR-12-02",
+      "name": "发货必填物流公司+单号",
+      "pass": true,
+      "detail": "物流公司与单号必填"
+    },
+    {
+      "id": "TC-FR-12-02",
+      "name": "发货成功（仅待发货可发）",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-FR-12-04",
+      "name": "订单列表返回超时发货标识字段",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-05-02",
+      "name": "非待收货订单确认收货被拒",
+      "pass": true,
+      "detail": "订单状态不允许该操作（CLOSED -> COMPLETED）"
+    },
+    {
+      "id": "TC-FR-05-02",
+      "name": "确认收货转已完成",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-12-01",
+      "name": "批量发货失败行回显原因",
+      "pass": true,
+      "detail": "[{\"orderNo\":\"NOT-EXIST-0001\",\"reason\":\"订单不存在\"}]"
+    },
+    {
+      "id": "TC-FR-12-03",
+      "name": "订单导出 CSV 含表头与金额列",
+      "pass": true,
+      "detail": "长度 363"
+    },
+    {
+      "id": "TC-FR-06-02",
+      "name": "售后原因枚举接口",
+      "pass": true,
+      "detail": "5 项"
+    },
+    {
+      "id": "TC-FR-06-01",
+      "name": "仅退款申请受理并生成工单",
+      "pass": true,
+      "detail": "AS202610230020182034"
+    },
+    {
+      "id": "TC-FR-06-05",
+      "name": "售后流转记录（提交/受理）自动生成",
+      "pass": true,
+      "detail": "节点 买家提交售后申请 → 系统受理"
+    },
+    {
+      "id": "TC-FR-13-01",
+      "name": "审核意见必填校验",
+      "pass": true,
+      "detail": "审核意见必填"
+    },
+    {
+      "id": "TC-FR-13-02",
+      "name": "审核通过触发退款流程",
+      "pass": true,
+      "detail": "已退款"
+    },
+    {
+      "id": "TC-FR-13-01",
+      "name": "审核后流转记录实时追加",
+      "pass": true,
+      "detail": "4 个节点"
+    },
+    {
+      "id": "TC-FR-13-04",
+      "name": "退款成功（服务端金额+原路退回语义）",
+      "pass": true,
+      "detail": "REFUNDED，退款 120.00 元"
+    },
+    {
+      "id": "TC-FR-13-04",
+      "name": "重复退款幂等（不重复退款）",
+      "pass": true,
+      "detail": "退款单号 AS202610230020182034-1"
+    },
+    {
+      "id": "TC-FR-06-05",
+      "name": "退款完成后时间线含 4+ 节点且可双端查看",
+      "pass": true,
+      "detail": "4 节点"
+    },
+    {
+      "id": "TC-FR-07-02",
+      "name": "退款后按比例扣减积分",
+      "pass": true,
+      "detail": "当前积分 0"
+    },
+    {
+      "id": "TC-FR-06-04",
+      "name": "买家可在审核前撤销售后",
+      "pass": true,
+      "detail": "CLOSED"
+    },
+    {
+      "id": "TC-FR-13-02",
+      "name": "退货退款审核通过进入待买家寄回",
+      "pass": true,
+      "detail": "待买家寄回"
+    },
+    {
+      "id": "TC-FR-06-02",
+      "name": "买家填写退货物流单号",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-FR-13-02",
+      "name": "商家确认收货后触发退款（退款中/已退款）",
+      "pass": true,
+      "detail": "已退款"
+    },
+    {
+      "id": "TC-FR-13-02",
+      "name": "退货退款完成并回补库存",
+      "pass": true,
+      "detail": "REFUNDED，退款 120.00 元"
+    },
+    {
+      "id": "TC-FR-06-05",
+      "name": "退货退款流转记录 6 节点",
+      "pass": true,
+      "detail": "6 节点"
+    },
+    {
+      "id": "TC-FR-06-04",
+      "name": "同一订单每 SKU 售后次数上限 3 次（第 4 次被拒）",
+      "pass": true,
+      "detail": "同一订单同一 SKU 最多申请 3 次售后"
+    },
+    {
+      "id": "TC-ST-01",
+      "name": "门店列表可切换",
+      "pass": true,
+      "detail": "门店 正隆记总号/正隆记熙春路店/正隆记益阳领秀资江店"
+    },
+    {
+      "id": "TC-FR-04-08",
+      "name": "到店自提下单免运费",
+      "pass": true,
+      "detail": "运费 0.00 元"
+    },
+    {
+      "id": "TC-FR-04-08",
+      "name": "自提支付后进入待自提",
+      "pass": true,
+      "detail": "待自提"
+    },
+    {
+      "id": "TC-AC-07",
+      "name": "动态核销码 6 位（每分钟刷新）",
+      "pass": true,
+      "detail": "码 363080, 剩余 41s"
+    },
+    {
+      "id": "TC-ST-02",
+      "name": "错误核销码被拒并返回原因",
+      "pass": true,
+      "detail": "核销码无效或已过期"
+    },
+    {
+      "id": "TC-ST-03",
+      "name": "正确核销码完成核销→订单已完成",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-ST-03",
+      "name": "核销记录留痕可查（店员/时间/门店）",
+      "pass": true,
+      "detail": "记录 1 条"
+    },
+    {
+      "id": "TC-FR-11-01",
+      "name": "库存三维恒等式：实物=可用+预占+冻结",
+      "pass": true,
+      "detail": "SKU 11 个"
+    },
+    {
+      "id": "TC-FR-11-02",
+      "name": "入库批次号必填校验",
+      "pass": true,
+      "detail": "批次号必填"
+    },
+    {
+      "id": "TC-FR-11-02",
+      "name": "入库单确认后实物库存增加",
+      "pass": true,
+      "detail": "实物 299 → 309"
+    },
+    {
+      "id": "TC-FR-11-07",
+      "name": "库存流水完整可追溯（含 IN 与关联单号）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-11-04",
+      "name": "冻结后可用库存清零（预占不受影响）",
+      "pass": true,
+      "detail": "可用 0"
+    },
+    {
+      "id": "TC-FR-11-04",
+      "name": "冻结 SKU 买家端立即不可购",
+      "pass": true,
+      "detail": "商品「三号究 · 正隆记门店同款 三号究 单包」库存不足，剩余可购 0"
+    },
+    {
+      "id": "TC-FR-11-04",
+      "name": "释放冻结恢复可用",
+      "pass": true,
+      "detail": "可用 306"
+    },
+    {
+      "id": "TC-FR-11-03",
+      "name": "盘点单创建并自动计算差异",
+      "pass": true,
+      "detail": "ID 1"
+    },
+    {
+      "id": "TC-FR-11-03",
+      "name": "提交人自确认被拒（二级审批）",
+      "pass": true,
+      "detail": "提交人不得同时担任确认人"
+    },
+    {
+      "id": "TC-FR-11-03",
+      "name": "第二人确认后按差异修正并生成 ADJUST 流水",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-FR-11-06",
+      "name": "安全阈值可配（留审计）",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-PL-03",
+      "name": "审计日志记录阈值修改（操作人/前后值）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-10-01",
+      "name": "商品新增成功（SKU 完整性校验通过）",
+      "pass": true,
+      "detail": "操作成功"
+    },
+    {
+      "id": "TC-FR-10-03",
+      "name": "新商品上架后买家端可见",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-10-03",
+      "name": "批量下架即时生效（买家端不可见）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-02-04",
+      "name": "下架商品详情返回已下架态",
+      "pass": true,
+      "detail": "OFF"
+    },
+    {
+      "id": "TC-FR-02-04",
+      "name": "下架商品禁止下单",
+      "pass": true,
+      "detail": "商品「E2E 测试商品 上下架用」已下架，禁止下单"
+    },
+    {
+      "id": "TC-PL-03",
+      "name": "上下架操作写入审计日志",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-14-01",
+      "name": "会员列表手机号脱敏",
+      "pass": true,
+      "detail": "共 3 人"
+    },
+    {
+      "id": "TC-FR-14-03",
+      "name": "人工调整积分并留痕（原因必填）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "TC-FR-14-03",
+      "name": "积分调整原因必填校验",
+      "pass": true,
+      "detail": "调整原因必填"
+    },
+    {
+      "id": "TC-FR-14-02",
+      "name": "等级规则读取（V0~V3 四档阈值）",
+      "pass": true,
+      "detail": "V0≥0.00 V1≥500.00 V2≥2000.00 V3≥5000.00"
+    },
+    {
+      "id": "TC-FR-14-02",
+      "name": "等级规则可配置（留审计）",
+      "pass": true,
+      "detail": "操作成功"
+    }
+  ]
+}

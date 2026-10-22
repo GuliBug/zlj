@@ -1,0 +1,34 @@
+{
+  "name": "zhenglongji-frontend-h5",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "正隆记槟榔商城 - H5 商城端（纯 Vue3 + Vite；参考工程为 Taro4 多端，本工程单 H5 端不引入 Taro，工具链对齐）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 10087",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{js,vue,css,scss,json}\"",
+    "format:check": "prettier --check \"src/**/*.{js,vue,css,scss,json}\"",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "vue": "^3.4.27",
+    "vue-router": "^4.3.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.17.0",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "eslint": "9.17.0",
+    "eslint-config-prettier": "9.1.0",
+    "eslint-plugin-vue": "9.32.0",
+    "globals": "15.14.0",
+    "prettier": "3.4.2",
+    "sass": "^1.77.0",
+    "vite": "^5.2.11",
+    "vitest": "^3.2.4",
+    "vue-eslint-parser": "9.4.3"
+  }
+}
