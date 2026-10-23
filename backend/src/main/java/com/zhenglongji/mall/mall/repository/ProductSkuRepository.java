@@ -66,4 +66,9 @@ public interface ProductSkuRepository extends JpaRepository<ProductSku, Long> {
     @Modifying
     @Query("UPDATE ProductSku s SET s.available = s.available + :qty WHERE s.id = :skuId AND s.status = 'NORMAL'")
     int inbound(@Param("skuId") Long skuId, @Param("qty") int qty);
+
+    /** 成交累计已售：实扣时同步增加（FR-02-6） */
+    @Modifying
+    @Query("UPDATE ProductSku s SET s.sales = COALESCE(s.sales, 0) + :qty WHERE s.id = :skuId")
+    int increaseSales(@Param("skuId") Long skuId, @Param("qty") int qty);
 }

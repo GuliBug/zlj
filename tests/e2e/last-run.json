@@ -1,8 +1,8 @@
 {
-  "runAt": "2026/10/23 00:20:19",
+  "runAt": "2026/10/23 10:58:04",
   "base": "http://localhost:8080",
-  "total": 89,
-  "passed": 89,
+  "total": 127,
+  "passed": 127,
   "failed": 0,
   "rate": "100.0",
   "results": [
@@ -28,19 +28,25 @@
       "id": "TC-PL-07",
       "name": "会员信息手机号脱敏展示",
       "pass": true,
-      "detail": "phone=139****8559, level=普通会员"
+      "detail": "phone=139****4268, level=普通会员"
+    },
+    {
+      "id": "FC-001",
+      "name": "登录手机号为空被拒（手机号不能为空）",
+      "pass": true,
+      "detail": "手机号不能为空"
     },
     {
       "id": "TC-FR-02-01",
       "name": "商品列表分页结构 {total,rows}",
       "pass": true,
-      "detail": "共 5 条"
+      "detail": "共 6 条"
     },
     {
       "id": "TC-FR-02-01",
       "name": "买家列表不返回下架商品",
       "pass": true,
-      "detail": "首条 正隆究 · 1000果 典藏"
+      "detail": "首条 测试高价礼盒（风控用）"
     },
     {
       "id": "TC-FR-02-02",
@@ -64,7 +70,7 @@
       "id": "TC-FR-02-01",
       "name": "关键字搜索命中",
       "pass": true,
-      "detail": "命中 5 条"
+      "detail": "命中 6 条"
     },
     {
       "id": "TC-FR-03-01",
@@ -77,6 +83,18 @@
       "name": "购物车改数量与勾选生效",
       "pass": true,
       "detail": ""
+    },
+    {
+      "id": "FC-020",
+      "name": "购物车非法参数被拒（quantity≤0 / SKU 不存在）",
+      "pass": true,
+      "detail": "参数错误 / SKU 不存在"
+    },
+    {
+      "id": "FC-021",
+      "name": "单 SKU 数量上限 999（超出被拒）",
+      "pass": true,
+      "detail": "单 SKU 最多购买 999 件"
     },
     {
       "id": "TC-FR-08-01",
@@ -97,6 +115,30 @@
       "detail": ""
     },
     {
+      "id": "FC-010",
+      "name": "地址收货人必填（空白拒绝）",
+      "pass": true,
+      "detail": "收货人不能为空"
+    },
+    {
+      "id": "FC-012",
+      "name": "地址所在地区必填",
+      "pass": true,
+      "detail": "所在地区不能为空"
+    },
+    {
+      "id": "FC-013",
+      "name": "地址详细地址必填",
+      "pass": true,
+      "detail": "详细地址不能为空"
+    },
+    {
+      "id": "FC-014",
+      "name": "重复设默认后仅一条默认地址（互斥）",
+      "pass": true,
+      "detail": "默认地址 1 条"
+    },
+    {
       "id": "TC-PL-02",
       "name": "管理端错误密码登录被拒",
       "pass": true,
@@ -112,7 +154,7 @@
       "id": "TC-FR-16-01",
       "name": "工作台核心指标齐全（GMV/订单/支付率/待发货/待售后/趋势）",
       "pass": true,
-      "detail": "GMV=60.00 元, 支付率=100%"
+      "detail": "GMV=150.00 元, 支付率=50%"
     },
     {
       "id": "TC-FR-02-03",
@@ -127,10 +169,100 @@
       "detail": "内容命中违禁词: 提神、醒脑"
     },
     {
+      "id": "FC-070",
+      "name": "商品名称必填",
+      "pass": true,
+      "detail": "商品名称不能为空"
+    },
+    {
+      "id": "FC-071",
+      "name": "商品分类必填",
+      "pass": true,
+      "detail": "分类不能为空"
+    },
+    {
+      "id": "FC-072",
+      "name": "SKU 列表必填",
+      "pass": true,
+      "detail": "SKU 列表不能为空"
+    },
+    {
+      "id": "FC-073",
+      "name": "SKU 售价必须大于 0",
+      "pass": true,
+      "detail": "售价必须大于 0"
+    },
+    {
+      "id": "FC-074",
+      "name": "SKU 库存必须大于等于 0",
+      "pass": true,
+      "detail": "库存必须大于等于 0"
+    },
+    {
+      "id": "FC-075",
+      "name": "商品状态枚举校验（非法状态拒绝）",
+      "pass": true,
+      "detail": "状态非法"
+    },
+    {
+      "id": "FC-076",
+      "name": "分类名称必填",
+      "pass": true,
+      "detail": "分类名称不能为空"
+    },
+    {
       "id": "TC-FR-10-01",
       "name": "商品新增（含 SKU/图片/分类）成功",
       "pass": true,
       "detail": "操作成功"
+    },
+    {
+      "id": "FC-030",
+      "name": "下单幂等键必填",
+      "pass": true,
+      "detail": "幂等键不能为空"
+    },
+    {
+      "id": "FC-031",
+      "name": "下单明细必填",
+      "pass": true,
+      "detail": "订单明细不能为空"
+    },
+    {
+      "id": "FC-032",
+      "name": "履约方式枚举校验",
+      "pass": true,
+      "detail": "履约方式非法"
+    },
+    {
+      "id": "FC-033",
+      "name": "自提订单必须选择门店",
+      "pass": true,
+      "detail": "自提订单必须选择门店"
+    },
+    {
+      "id": "FC-034",
+      "name": "已关闭门店禁止自提下单",
+      "pass": true,
+      "detail": "门店已关闭，无法自提"
+    },
+    {
+      "id": "FC-035",
+      "name": "快递订单必须选择收货地址",
+      "pass": true,
+      "detail": "快递订单必须选择收货地址"
+    },
+    {
+      "id": "FC-036",
+      "name": "使用他人地址下单被拒（无权使用）",
+      "pass": true,
+      "detail": "无权使用该地址"
+    },
+    {
+      "id": "FC-037",
+      "name": "下单明细行参数校验（quantity≤0 / SKU 不存在）",
+      "pass": true,
+      "detail": "订单明细参数错误 / SKU 不存在"
     },
     {
       "id": "TC-FR-04-01",
@@ -142,19 +274,19 @@
       "id": "TC-FR-04-02",
       "name": "同幂等键重复提交不产生重复订单",
       "pass": true,
-      "detail": "单号 20261023002018182030 → 20261023002018182030"
+      "detail": "单号 20261023105804276923 → 20261023105804276923"
     },
     {
       "id": "TC-FR-04-03",
       "name": "下单预占库存（可用减少）",
       "pass": true,
-      "detail": "可用 297 → 293"
+      "detail": "可用 307 → 303"
     },
     {
       "id": "TC-FR-04-03",
       "name": "库存不足下单失败并返回缺货信息",
       "pass": true,
-      "detail": "商品「三号究 · 正隆记门店同款 三号究 单包」库存不足，剩余可购 293"
+      "detail": "商品「三号究 · 正隆记门店同款 三号究 单包」库存不足，剩余可购 303"
     },
     {
       "id": "TC-FR-04-07",
@@ -178,7 +310,13 @@
       "id": "TC-FR-11-05",
       "name": "支付成功后库存实扣",
       "pass": true,
-      "detail": "可用 293"
+      "detail": "可用 303"
+    },
+    {
+      "id": "TC-FR-02-06",
+      "name": "支付实扣后已售累计（SKU 级与商品级）",
+      "pass": true,
+      "detail": "SKU 已售 5→9，商品已售 5→9"
     },
     {
       "id": "TC-FR-07-02",
@@ -196,13 +334,19 @@
       "id": "TC-PL-04",
       "name": "资损监控登记重复支付告警",
       "pass": true,
-      "detail": "告警数 2"
+      "detail": "告警数 5"
     },
     {
       "id": "TC-FR-05-02",
       "name": "取消待支付订单并释放预占",
       "pass": true,
-      "detail": "状态 CLOSED，可用 293→293"
+      "detail": "状态 CLOSED，可用 303→303"
+    },
+    {
+      "id": "TC-FR-02-06",
+      "name": "取消待支付订单不影响已售（仅预占未实扣）",
+      "pass": true,
+      "detail": "SKU 已售 9，商品已售 9"
     },
     {
       "id": "TC-O-04",
@@ -256,7 +400,7 @@
       "id": "TC-FR-12-03",
       "name": "订单导出 CSV 含表头与金额列",
       "pass": true,
-      "detail": "长度 363"
+      "detail": "长度 528"
     },
     {
       "id": "TC-FR-06-02",
@@ -265,10 +409,34 @@
       "detail": "5 项"
     },
     {
+      "id": "FC-060",
+      "name": "售后申请参数不完整被拒",
+      "pass": true,
+      "detail": "申请参数不完整"
+    },
+    {
+      "id": "FC-061",
+      "name": "售后原因枚举校验（非法原因拒绝）",
+      "pass": true,
+      "detail": "售后原因非法"
+    },
+    {
+      "id": "FC-062",
+      "name": "售后类型枚举校验（非法类型拒绝）",
+      "pass": true,
+      "detail": "售后类型非法"
+    },
+    {
+      "id": "FC-063",
+      "name": "待支付订单不可申请售后",
+      "pass": true,
+      "detail": "仅已完成/已发货订单可申请售后"
+    },
+    {
       "id": "TC-FR-06-01",
       "name": "仅退款申请受理并生成工单",
       "pass": true,
-      "detail": "AS202610230020182034"
+      "detail": "AS202610231058046928"
     },
     {
       "id": "TC-FR-06-05",
@@ -304,7 +472,7 @@
       "id": "TC-FR-13-04",
       "name": "重复退款幂等（不重复退款）",
       "pass": true,
-      "detail": "退款单号 AS202610230020182034-1"
+      "detail": "退款单号 AS202610231058046928-1"
     },
     {
       "id": "TC-FR-06-05",
@@ -329,6 +497,12 @@
       "name": "退货退款审核通过进入待买家寄回",
       "pass": true,
       "detail": "待买家寄回"
+    },
+    {
+      "id": "FC-067",
+      "name": "退货物流公司/单号必填校验",
+      "pass": true,
+      "detail": "物流公司与单号必填"
     },
     {
       "id": "TC-FR-06-02",
@@ -382,7 +556,19 @@
       "id": "TC-AC-07",
       "name": "动态核销码 6 位（每分钟刷新）",
       "pass": true,
-      "detail": "码 363080, 剩余 41s"
+      "detail": "码 377814, 剩余 56s"
+    },
+    {
+      "id": "FC-052",
+      "name": "核销参数不完整被拒",
+      "pass": true,
+      "detail": "核销参数不完整"
+    },
+    {
+      "id": "FC-053",
+      "name": "非待自提订单核销被拒",
+      "pass": true,
+      "detail": "订单不是待自提状态，无法核销"
     },
     {
       "id": "TC-ST-02",
@@ -400,13 +586,13 @@
       "id": "TC-ST-03",
       "name": "核销记录留痕可查（店员/时间/门店）",
       "pass": true,
-      "detail": "记录 1 条"
+      "detail": "记录 2 条"
     },
     {
       "id": "TC-FR-11-01",
       "name": "库存三维恒等式：实物=可用+预占+冻结",
       "pass": true,
-      "detail": "SKU 11 个"
+      "detail": "SKU 13 个"
     },
     {
       "id": "TC-FR-11-02",
@@ -418,7 +604,37 @@
       "id": "TC-FR-11-02",
       "name": "入库单确认后实物库存增加",
       "pass": true,
-      "detail": "实物 299 → 309"
+      "detail": "实物 306 → 316"
+    },
+    {
+      "id": "FC-080",
+      "name": "入库数量必须大于 0",
+      "pass": true,
+      "detail": "入库数量必须大于 0"
+    },
+    {
+      "id": "FC-083",
+      "name": "冻结/释放 action 枚举校验",
+      "pass": true,
+      "detail": "action 非法，须为 FREEZE 或 RELEASE"
+    },
+    {
+      "id": "FC-084",
+      "name": "安全阈值非法值拒绝",
+      "pass": true,
+      "detail": "阈值非法"
+    },
+    {
+      "id": "FC-085",
+      "name": "盘点明细必填",
+      "pass": true,
+      "detail": "盘点明细不能为空"
+    },
+    {
+      "id": "FC-086",
+      "name": "盘点实盘数非法值拒绝",
+      "pass": true,
+      "detail": "实盘数非法"
     },
     {
       "id": "TC-FR-11-07",
@@ -433,6 +649,12 @@
       "detail": "可用 0"
     },
     {
+      "id": "FC-082",
+      "name": "冻结 SKU 禁止入库",
+      "pass": true,
+      "detail": "SKU 已冻结，不能入库"
+    },
+    {
       "id": "TC-FR-11-04",
       "name": "冻结 SKU 买家端立即不可购",
       "pass": true,
@@ -442,13 +664,13 @@
       "id": "TC-FR-11-04",
       "name": "释放冻结恢复可用",
       "pass": true,
-      "detail": "可用 306"
+      "detail": "可用 316"
     },
     {
       "id": "TC-FR-11-03",
       "name": "盘点单创建并自动计算差异",
       "pass": true,
-      "detail": "ID 1"
+      "detail": "ID 4"
     },
     {
       "id": "TC-FR-11-03",
@@ -514,7 +736,7 @@
       "id": "TC-FR-14-01",
       "name": "会员列表手机号脱敏",
       "pass": true,
-      "detail": "共 3 人"
+      "detail": "共 4 人"
     },
     {
       "id": "TC-FR-14-03",
@@ -527,6 +749,12 @@
       "name": "积分调整原因必填校验",
       "pass": true,
       "detail": "调整原因必填"
+    },
+    {
+      "id": "FC-090",
+      "name": "积分变动值为 0 被拒",
+      "pass": true,
+      "detail": "积分变动值非法"
     },
     {
       "id": "TC-FR-14-02",

@@ -30,7 +30,11 @@
       <el-table-column label="商品" min-width="240">
         <template #default="{ row }">
           <div class="gname">
-            <el-image :src="row.image || PLACEHOLDER_IMG" fit="cover" class="gthumb" :preview-src-list="[row.image || PLACEHOLDER_IMG]" preview-teleported />
+            <el-image :src="row.image || PLACEHOLDER_IMG" fit="cover" class="gthumb" :preview-src-list="[row.image || PLACEHOLDER_IMG]" preview-teleported>
+              <template #error>
+                <img :src="PLACEHOLDER_IMG" class="gthumb" style="width: 100%; height: 100%; object-fit: cover" />
+              </template>
+            </el-image>
             <div>
               {{ row.name }}
               <div class="sub">{{ (row.skus && row.skus.length) || 0 }} 个 SKU</div>
@@ -88,13 +92,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { listProducts, changeProductStatus, listCategories } from '@/api/product'
 import { fen2yuan, downloadCsv } from '@/utils/format'
-
-// 商品图缺失时的红金品牌占位图
-const PLACEHOLDER_IMG =
-  'data:image/svg+xml;utf8,' +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8f1d22"/><stop offset="1" stop-color="#6d1216"/></linearGradient></defs><rect width="200" height="200" fill="url(#g)"/><rect x="14" y="14" width="172" height="172" fill="none" stroke="#C9A063" stroke-width="3"/><text x="100" y="92" text-anchor="middle" font-family="serif" font-size="34" fill="#F3D9A4">正隆記</text><text x="100" y="128" text-anchor="middle" font-family="serif" font-size="16" fill="#C9A063">始于 1916</text></svg>`
-  )
+import { PLACEHOLDER_IMG } from '@/utils/placeholder'
 
 const query = reactive({ page: 1, size: 10, categoryId: null, status: null, keyword: '' })
 const rows = ref([])

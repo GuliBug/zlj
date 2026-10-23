@@ -115,7 +115,11 @@ v-model="row.stock" :min="0" :controls="false" size="small" style="width: 80px"
         <el-form-item label="主图 URL">
           <el-input v-model="form.imagesText" placeholder="多个 URL 用英文逗号分隔（示意图）" />
           <div class="img-preview">
-            <el-image v-for="(img, i) in mainImages" :key="i" :src="img" fit="cover" class="upbox-img" :preview-src-list="mainImages" preview-teleported />
+            <el-image v-for="(img, i) in mainImages" :key="i" :src="img" fit="cover" class="upbox-img" :preview-src-list="mainImages" preview-teleported>
+              <template #error>
+                <img :src="PLACEHOLDER_IMG" class="upbox-img" style="width: 100%; height: 100%; object-fit: cover" />
+              </template>
+            </el-image>
             <div v-if="!mainImages.length" class="upbox">＋</div>
             <div v-if="mainImages.length < 3" class="upbox">＋</div>
           </div>
@@ -123,7 +127,11 @@ v-model="row.stock" :min="0" :controls="false" size="small" style="width: 80px"
         <el-form-item label="详情图 URL">
           <el-input v-model="form.detailImagesText" placeholder="多个 URL 用英文逗号分隔（示意图）" />
           <div class="img-preview">
-            <el-image v-for="(img, i) in detailImages" :key="i" :src="img" fit="cover" class="upbox-img" :preview-src-list="detailImages" preview-teleported />
+            <el-image v-for="(img, i) in detailImages" :key="i" :src="img" fit="cover" class="upbox-img" :preview-src-list="detailImages" preview-teleported>
+              <template #error>
+                <img :src="PLACEHOLDER_IMG" class="upbox-img" style="width: 100%; height: 100%; object-fit: cover" />
+              </template>
+            </el-image>
             <div v-if="!detailImages.length" class="upbox">＋</div>
           </div>
         </el-form-item>
@@ -156,6 +164,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProduct, createProduct, updateProduct, checkBannedWords, listCategories } from '@/api/product'
 import { yuan2fen } from '@/utils/format'
+import { PLACEHOLDER_IMG } from '@/utils/placeholder'
 
 const route = useRoute()
 const router = useRouter()

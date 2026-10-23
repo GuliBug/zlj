@@ -53,12 +53,17 @@ public class StockService {
         return rows > 0;
     }
 
-    /** 支付实扣 / 核销实扣：reserved-=n（实物减少） */
+    /** 支付实扣 / 核销实扣：reserved-=n（实物减少），同步累计已售（FR-02-6，取消/退款不回退） */
     @Transactional
     public void deduct(Long skuId, int qty, String relatedNo, String remark) {
         int rows = skuRepository.deductReserved(skuId, qty);
         if (rows == 0) {
             throw new ServiceException("库存预占异常，SKU " + skuId);
+        }
+        skuRepository.increaseSales(skuId, qty);
+        ProductSku sku = skuRepository.findById(skuId).orElse(null);
+        if (sku != null) {
+            productRepository.increaseSales(sku.getProductId(), qty);
         }
         writeFlow(skuId, "OUT", -qty, relatedNo, remark);
     }

@@ -71,6 +71,10 @@ const yuan = (fen) => (fen / 100).toFixed(2)
     `phone=${me.data?.phone}, level=${me.data?.levelName}`
   )
 
+  // 字段级校验：登录（FC-001）
+  const emptyPhone = await req('POST', '/api/member/login', { phone: '', smsCode: '123456' })
+  check('FC-001', '登录手机号为空被拒（手机号不能为空）', emptyPhone.code !== 200, emptyPhone.msg)
+
   // ===================== 二、商品目录（FR-02） =====================
   const list = await req('GET', '/api/products?page=1&size=10')
   check('TC-FR-02-01', '商品列表分页结构 {total,rows}', list.code === 200 && Array.isArray(list.data?.rows) && typeof list.data?.total === 'number', `共 ${list.data?.total} 条`)
@@ -107,6 +111,13 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const cart2 = await req('GET', '/api/cart', undefined, buyerToken)
   check('TC-FR-03-02', '购物车改数量与勾选生效', (cart2.data?.rows || []).find((r) => r.id === cartId)?.quantity === 4)
 
+  // 字段级校验：购物车（FC-020 / FC-021）
+  const cartBadQty = await req('POST', '/api/cart', { skuId: cheap.id, quantity: 0 }, buyerToken)
+  const cartBadSku = await req('POST', '/api/cart', { skuId: 99999999, quantity: 1 }, buyerToken)
+  check('FC-020', '购物车非法参数被拒（quantity≤0 / SKU 不存在）', cartBadQty.code !== 200 && cartBadSku.code !== 200, `${cartBadQty.msg} / ${cartBadSku.msg}`)
+  const cartOverMax = await req('POST', '/api/cart', { skuId: cheap.id, quantity: 1000 }, buyerToken)
+  check('FC-021', '单 SKU 数量上限 999（超出被拒）', cartOverMax.code !== 200, cartOverMax.msg)
+
   // 地址（FR-08-1）
   const addr = await req('POST', '/api/addresses', { receiver: '张三', phone: '13800001114', region: '湖南省湘潭市岳塘区', detail: '正隆街 1 号 3 栋 501', isDefault: true }, buyerToken)
   check('TC-FR-08-01', '地址新增（纯文本）', addr.code === 200, addr.msg)
@@ -114,6 +125,18 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const addressId = addresses.data?.[0]?.id
   check('TC-FR-08-01', '地址列表返回默认地址', addresses.code === 200 && addresses.data?.some((a) => a.isDefault), `共 ${addresses.data?.length} 条`)
   check('TC-FR-08-01', '地址手机号校验（非法手机号拒绝）', (await req('POST', '/api/addresses', { receiver: '李四', phone: '123', region: 'x', detail: 'y' }, buyerToken)).code !== 200)
+
+  // 字段级校验：地址（FC-010 / FC-012 / FC-013 / FC-014）
+  const addrNoReceiver = await req('POST', '/api/addresses', { receiver: ' ', phone: '13800001114', region: '湖南省', detail: 'x' }, buyerToken)
+  check('FC-010', '地址收货人必填（空白拒绝）', addrNoReceiver.code !== 200, addrNoReceiver.msg)
+  const addrNoRegion = await req('POST', '/api/addresses', { receiver: '李四', phone: '13800001114', region: '', detail: 'x' }, buyerToken)
+  check('FC-012', '地址所在地区必填', addrNoRegion.code !== 200, addrNoRegion.msg)
+  const addrNoDetail = await req('POST', '/api/addresses', { receiver: '李四', phone: '13800001114', region: '湖南省', detail: '' }, buyerToken)
+  check('FC-013', '地址详细地址必填', addrNoDetail.code !== 200, addrNoDetail.msg)
+  await req('POST', '/api/addresses', { receiver: '默认A', phone: '13800001114', region: '湖南省湘潭市', detail: 'A 号', isDefault: true }, buyerToken)
+  await req('POST', '/api/addresses', { receiver: '默认B', phone: '13800001114', region: '湖南省湘潭市', detail: 'B 号', isDefault: true }, buyerToken)
+  const addrList2 = await req('GET', '/api/addresses', undefined, buyerToken)
+  check('FC-014', '重复设默认后仅一条默认地址（互斥）', addrList2.code === 200 && addrList2.data.filter((a) => a.isDefault).length === 1, `默认地址 ${addrList2.data.filter((a) => a.isDefault).length} 条`)
 
   // ===================== 四、管理端基础（FR-10 / FR-16 / PL-02） =====================
   const badAdmin = await req('POST', '/admin-api/login', { username: 'admin', password: 'wrong' })
@@ -153,6 +176,23 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   )
   check('TC-FR-02-03', '含违禁词商品保存被阻断', bannedProduct.code !== 200, bannedProduct.msg)
 
+  // 字段级校验：商品/分类管理（FC-070 ~ FC-076）
+  const pBase = { brand: '正隆记', origin: '湖南湘潭', description: '字段校验专用', images: [], detailImages: [], skus: [{ flavor: '原味', spec: '单包', barcode: 'FC-' + Date.now(), price: 100, costPrice: 50, stock: 1 }] }
+  const pNoName = await req('POST', '/admin-api/products', { ...pBase, name: '', categoryId: 1 }, adminToken)
+  check('FC-070', '商品名称必填', pNoName.code !== 200, pNoName.msg)
+  const pNoCat = await req('POST', '/admin-api/products', { ...pBase, name: 'FC 分类校验', categoryId: null }, adminToken)
+  check('FC-071', '商品分类必填', pNoCat.code !== 200, pNoCat.msg)
+  const pNoSku = await req('POST', '/admin-api/products', { ...pBase, name: 'FC SKU 校验', categoryId: 1, skus: [] }, adminToken)
+  check('FC-072', 'SKU 列表必填', pNoSku.code !== 200, pNoSku.msg)
+  const pZeroPrice = await req('POST', '/admin-api/products', { ...pBase, name: 'FC 价格校验', categoryId: 1, skus: [{ ...pBase.skus[0], price: 0 }] }, adminToken)
+  check('FC-073', 'SKU 售价必须大于 0', pZeroPrice.code !== 200, pZeroPrice.msg)
+  const pNegStock = await req('POST', '/admin-api/products', { ...pBase, name: 'FC 库存校验', categoryId: 1, skus: [{ ...pBase.skus[0], stock: -1 }] }, adminToken)
+  check('FC-074', 'SKU 库存必须大于等于 0', pNegStock.code !== 200, pNegStock.msg)
+  const pBadStatus = await req('POST', '/admin-api/products/status', { ids: [1], status: 'AAA' }, adminToken)
+  check('FC-075', '商品状态枚举校验（非法状态拒绝）', pBadStatus.code !== 200, pBadStatus.msg)
+  const catNoName = await req('POST', '/admin-api/categories', { name: '', parentId: null }, adminToken)
+  check('FC-076', '分类名称必填', catNoName.code !== 200, catNoName.msg)
+
   // 高价商品用于金额上限风控（FR-04-7）
   const expensive = await req(
     'POST',
@@ -176,6 +216,31 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const expDetail = expId ? await req('GET', `/admin-api/products/${expId}`, undefined, adminToken) : { data: null }
 
   // ===================== 五、下单 / 幂等 / 库存预占（FR-04） =====================
+  // 字段级校验：下单（FC-030 ~ FC-037）
+  const oNoKey = await req('POST', '/api/orders', { idempotentKey: '', fulfillmentType: 'EXPRESS', addressId, items: [{ skuId: cheap.id, quantity: 1 }] }, buyerToken)
+  check('FC-030', '下单幂等键必填', oNoKey.code !== 200, oNoKey.msg)
+  const oNoItems = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-ni', fulfillmentType: 'EXPRESS', addressId, items: [] }, buyerToken)
+  check('FC-031', '下单明细必填', oNoItems.code !== 200, oNoItems.msg)
+  const oBadType = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-bt', fulfillmentType: 'DUMMY', addressId, items: [{ skuId: cheap.id, quantity: 1 }] }, buyerToken)
+  check('FC-032', '履约方式枚举校验', oBadType.code !== 200, oBadType.msg)
+  const oNoStore = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-ns', fulfillmentType: 'PICKUP', items: [{ skuId: cheap.id, quantity: 1 }] }, buyerToken)
+  check('FC-033', '自提订单必须选择门店', oNoStore.code !== 200, oNoStore.msg)
+  const st1 = (await req('GET', '/api/stores')).data[0]
+  await req('PUT', `/admin-api/stores/${st1.id}`, { name: st1.name, address: st1.address, phone: st1.phone, status: 'CLOSED' }, adminToken)
+  const oClosedStore = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-sc', fulfillmentType: 'PICKUP', storeId: st1.id, items: [{ skuId: cheap.id, quantity: 1 }] }, buyerToken)
+  await req('PUT', `/admin-api/stores/${st1.id}`, { name: st1.name, address: st1.address, phone: st1.phone, status: 'OPEN' }, adminToken)
+  check('FC-034', '已关闭门店禁止自提下单', oClosedStore.code !== 200 && /门店已关闭/.test(oClosedStore.msg || ''), oClosedStore.msg)
+  const oNoAddr = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-na', fulfillmentType: 'EXPRESS', items: [{ skuId: cheap.id, quantity: 1 }] }, buyerToken)
+  check('FC-035', '快递订单必须选择收货地址', oNoAddr.code !== 200, oNoAddr.msg)
+  const phone2 = '138' + String(Date.now()).slice(-8)
+  const login2 = await req('POST', '/api/member/login', { phone: phone2, smsCode: '123456' })
+  const addr2 = await req('POST', '/api/addresses', { receiver: '王五', phone: phone2, region: '湖南省湘潭市', detail: '他人地址 1 号' }, login2.data?.token)
+  const oForeignAddr = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-fa', fulfillmentType: 'EXPRESS', addressId: addr2.data?.id, items: [{ skuId: cheap.id, quantity: 1 }] }, buyerToken)
+  check('FC-036', '使用他人地址下单被拒（无权使用）', oForeignAddr.code !== 200, oForeignAddr.msg)
+  const oNegQty = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-nq', fulfillmentType: 'EXPRESS', addressId, items: [{ skuId: cheap.id, quantity: -1 }] }, buyerToken)
+  const oBadSku = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-bs', fulfillmentType: 'EXPRESS', addressId, items: [{ skuId: 99999999, quantity: 1 }] }, buyerToken)
+  check('FC-037', '下单明细行参数校验（quantity≤0 / SKU 不存在）', oNegQty.code !== 200 && oBadSku.code !== 200, `${oNegQty.msg} / ${oBadSku.msg}`)
+
   const qtyForFree = Math.max(1, Math.ceil(9900 / cheap.price))
   const key1 = 'e2e-' + Date.now() + '-a'
   const order1 = await req(
@@ -225,6 +290,15 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const skuRow2 = (skuAfterPay.data.skus || []).find((s) => s.id === cheap.id)
   check('TC-FR-11-05', '支付成功后库存实扣', skuRow2 && skuRow2.stock === cheap.stock - qtyForFree, `可用 ${skuRow2?.stock}`)
 
+  // 已售累计（FR-02-6）：实扣时 SKU 级与商品级同步增加
+  const skuRowBeforePay = (skuAfterReserve.data.skus || []).find((s) => s.id === cheap.id)
+  check(
+    'TC-FR-02-06',
+    '支付实扣后已售累计（SKU 级与商品级）',
+    skuRow2 && skuRowBeforePay && skuRow2.sales === skuRowBeforePay.sales + qtyForFree && skuAfterPay.data.sales === skuAfterReserve.data.sales + qtyForFree,
+    `SKU 已售 ${skuRowBeforePay?.sales}→${skuRow2?.sales}，商品已售 ${skuAfterReserve.data.sales}→${skuAfterPay.data.sales}`
+  )
+
   const me2 = await req('GET', '/api/member/me', undefined, buyerToken)
   check('TC-FR-07-02', '支付成功按实付发放积分（1 元=1 积分）', me2.data?.points >= Math.floor((o1.payAmount || 0) / 100), `积分 ${me2.data?.points}，实付 ${yuan(o1.payAmount || 0)} 元`)
 
@@ -249,8 +323,11 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   )
   await req('POST', `/api/orders/${order2.data.orderNo}/cancel`, undefined, buyerToken)
   const detail2 = await req('GET', `/api/orders/${order2.data.orderNo}`, undefined, buyerToken)
-  const stockAfterCancel = (await req('GET', `/api/products/${cheap.productId}`)).data.skus.find((s) => s.id === cheap.id).stock
+  const prodAfterCancel = await req('GET', `/api/products/${cheap.productId}`)
+  const skuAfterCancelRow = prodAfterCancel.data.skus.find((s) => s.id === cheap.id)
+  const stockAfterCancel = skuAfterCancelRow.stock
   check('TC-FR-05-02', '取消待支付订单并释放预占', detail2.data?.status === 'CLOSED' && stockAfterCancel === stockBeforeCancel, `状态 ${detail2.data?.status}，可用 ${stockBeforeCancel}→${stockAfterCancel}`)
+  check('TC-FR-02-06', '取消待支付订单不影响已售（仅预占未实扣）', skuAfterCancelRow.sales === skuRow2.sales && prodAfterCancel.data.sales === skuAfterPay.data.sales, `SKU 已售 ${skuAfterCancelRow.sales}，商品已售 ${prodAfterCancel.data.sales}`)
   check('TC-O-04', '禁止状态回跳（已关闭订单再次支付被拒）', (await req('POST', `/api/orders/${order2.data.orderNo}/pay`, undefined, buyerToken)).code !== 200)
 
   // 订单列表筛选（FR-05-1）
@@ -280,6 +357,18 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   // ===================== 七、售后闭环（FR-06 / FR-13） =====================
   const reasons = await req('GET', '/api/aftersales/reasons', undefined, buyerToken)
   check('TC-FR-06-02', '售后原因枚举接口', reasons.code === 200 && (reasons.data || []).length >= 3, `${(reasons.data || []).length} 项`)
+
+  // 字段级校验：售后申请（FC-060 ~ FC-063）
+  const asNoParam = await req('POST', '/api/aftersales', { orderNo: null, skuId: cheap.id, type: 'REFUND_ONLY', reason: '质量问题', images: [] }, buyerToken)
+  check('FC-060', '售后申请参数不完整被拒', asNoParam.code !== 200, asNoParam.msg)
+  const asBadReason = await req('POST', '/api/aftersales', { orderNo: o1.orderNo, skuId: cheap.id, type: 'REFUND_ONLY', reason: '随便问问', images: [] }, buyerToken)
+  check('FC-061', '售后原因枚举校验（非法原因拒绝）', asBadReason.code !== 200, asBadReason.msg)
+  const asBadType = await req('POST', '/api/aftersales', { orderNo: o1.orderNo, skuId: cheap.id, type: 'REFUND', reason: '质量问题', images: [] }, buyerToken)
+  check('FC-062', '售后类型枚举校验（非法类型拒绝）', asBadType.code !== 200, asBadType.msg)
+  const wpOrder = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-wp', fulfillmentType: 'EXPRESS', addressId, items: [{ skuId: cheap.id, quantity: 1 }] }, buyerToken)
+  const asWaitPay = await req('POST', '/api/aftersales', { orderNo: wpOrder.data.orderNo, skuId: cheap.id, type: 'REFUND_ONLY', reason: '质量问题', images: [] }, buyerToken)
+  check('FC-063', '待支付订单不可申请售后', asWaitPay.code !== 200 && /已完成|已发货/.test(asWaitPay.msg || ''), asWaitPay.msg)
+  await req('POST', `/api/orders/${wpOrder.data.orderNo}/cancel`, undefined, buyerToken)
 
   const as1 = await req(
     'POST',
@@ -331,6 +420,9 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const afterApprove = await req('GET', `/api/aftersales/${returnNo}`, undefined, buyerToken)
   check('TC-FR-13-02', '退货退款审核通过进入待买家寄回', afterApprove.data?.status === 'WAIT_RETURN', afterApprove.data?.statusText)
 
+  const retLogiEmpty = await req('POST', `/api/aftersales/${returnNo}/return-logistics`, { company: '', no: '' }, buyerToken)
+  check('FC-067', '退货物流公司/单号必填校验', retLogiEmpty.code !== 200, retLogiEmpty.msg)
+
   const logistics = await req('POST', `/api/aftersales/${returnNo}/return-logistics`, { company: '顺丰速运', no: 'SF' + Date.now() }, buyerToken)
   check('TC-FR-06-02', '买家填写退货物流单号', logistics.code === 200, logistics.msg)
 
@@ -365,6 +457,12 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const vc1 = await req('GET', `/api/orders/${pickupOrder.data.orderNo}/verify-code`, undefined, buyerToken)
   check('TC-AC-07', '动态核销码 6 位（每分钟刷新）', vc1.code === 200 && /^\d{6}$/.test(String(vc1.data?.code)), `码 ${vc1.data?.code}, 剩余 ${vc1.data?.expiresInSec}s`)
 
+  // 字段级校验：核销（FC-052 / FC-053）
+  const vNoParam = await req('POST', '/admin-api/verify', { orderNo: pickupOrder.data.orderNo, code: null, storeId }, adminToken)
+  check('FC-052', '核销参数不完整被拒', vNoParam.code !== 200, vNoParam.msg)
+  const vNotPickup = await req('POST', '/admin-api/verify', { orderNo: o1.orderNo, code: '123456', storeId }, adminToken)
+  check('FC-053', '非待自提订单核销被拒', vNotPickup.code !== 200 && /待自提/.test(vNotPickup.msg || ''), vNotPickup.msg)
+
   const verifyBad = await req('POST', '/admin-api/verify', { orderNo: pickupOrder.data.orderNo, code: '000000', storeId }, adminToken)
   check('TC-ST-02', '错误核销码被拒并返回原因', verifyBad.code !== 200, verifyBad.msg)
 
@@ -390,12 +488,27 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const targetAfterIn = (skusAfterIn.data?.rows || []).find((s) => s.id === target.id)
   check('TC-FR-11-02', '入库单确认后实物库存增加', inbound.code === 200 && targetAfterIn?.physical === physicalBefore + 10, `实物 ${physicalBefore} → ${targetAfterIn?.physical}`)
 
+  // 字段级校验：库存管理（FC-080 / FC-083 ~ FC-086）
+  const inZeroQty = await req('POST', '/admin-api/stock/inbounds', { skuId: target.id, quantity: 0, batchNo: 'B-ZERO' }, adminToken)
+  check('FC-080', '入库数量必须大于 0', inZeroQty.code !== 200, inZeroQty.msg)
+  const badAction = await req('POST', '/admin-api/stock/freeze', { skuId: target.id, action: 'LOCK', reason: 'FC' }, adminToken)
+  check('FC-083', '冻结/释放 action 枚举校验', badAction.code !== 200, badAction.msg)
+  const badThreshold = await req('POST', '/admin-api/stock/threshold', { skuId: target.id, threshold: -5 }, adminToken)
+  check('FC-084', '安全阈值非法值拒绝', badThreshold.code !== 200, badThreshold.msg)
+  const stEmpty = await req('POST', '/admin-api/stock/stocktakes', { items: [], remark: 'FC' }, adminToken)
+  check('FC-085', '盘点明细必填', stEmpty.code !== 200, stEmpty.msg)
+  const stNegActual = await req('POST', '/admin-api/stock/stocktakes', { items: [{ skuId: target.id, actual: -1 }], remark: 'FC' }, adminToken)
+  check('FC-086', '盘点实盘数非法值拒绝', stNegActual.code !== 200, stNegActual.msg)
+
   const flows = await req('GET', `/admin-api/stock/flows?skuId=${target.id}&page=1&size=20`, undefined, adminToken)
   check('TC-FR-11-07', '库存流水完整可追溯（含 IN 与关联单号）', flows.code === 200 && (flows.data?.rows || []).some((f) => f.type === 'IN' && f.relatedNo))
 
   const freeze = await req('POST', '/admin-api/stock/freeze', { skuId: target.id, action: 'FREEZE', reason: 'E2E 质检冻结' }, adminToken)
   const frozenSku = (await req('GET', '/admin-api/skus?page=1&size=50', undefined, adminToken)).data.rows.find((s) => s.id === target.id)
   check('TC-FR-11-04', '冻结后可用库存清零（预占不受影响）', freeze.code === 200 && frozenSku?.available === 0, `可用 ${frozenSku?.available}`)
+  const inFrozen = await req('POST', '/admin-api/stock/inbounds', { skuId: target.id, quantity: 5, batchNo: 'B-FROZEN-' + Date.now() }, adminToken)
+  check('FC-082', '冻结 SKU 禁止入库', inFrozen.code !== 200, inFrozen.msg)
+
   const buyFrozen = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-f', fulfillmentType: 'EXPRESS', addressId, items: [{ skuId: target.id, quantity: 1 }] }, buyerToken)
   check('TC-FR-11-04', '冻结 SKU 买家端立即不可购', buyFrozen.code !== 200, buyFrozen.msg)
   await req('POST', '/admin-api/stock/freeze', { skuId: target.id, action: 'RELEASE', reason: 'E2E 解除冻结' }, adminToken)
@@ -454,18 +567,26 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const members = await req('GET', '/admin-api/members?page=1&size=10', undefined, adminToken)
   const memberRow = (members.data?.rows || []).find((m) => (m.phone || '').includes('****'))
   check('TC-FR-14-01', '会员列表手机号脱敏', members.code === 200 && !!memberRow, `共 ${members.data?.total} 人`)
-  const memberId = memberRow?.id
+  // 积分调整目标取当前买家本人，避免后续注册的会员排在列表首位导致错调
+  const meInfo = await req('GET', '/api/member/me', undefined, buyerToken)
+  const memberId = meInfo.data?.id ?? memberRow?.id
   const pointsAdj = await req('POST', `/admin-api/members/${memberId}/points`, { change: 50, reason: 'E2E 客诉补偿' }, adminToken)
   const logs = await req('GET', '/api/member/points/logs?page=1&size=10', undefined, buyerToken)
   check('TC-FR-14-03', '人工调整积分并留痕（原因必填）', pointsAdj.code === 200 && (logs.data?.rows || []).some((l) => /客诉补偿/.test(l.reason || '')))
   const adjustNoReason = await req('POST', `/admin-api/members/${memberId}/points`, { change: 10, reason: '' }, adminToken)
   check('TC-FR-14-03', '积分调整原因必填校验', adjustNoReason.code !== 200, adjustNoReason.msg)
 
+  const adjustZero = await req('POST', `/admin-api/members/${memberId}/points`, { change: 0, reason: 'FC 校验' }, adminToken)
+  check('FC-090', '积分变动值为 0 被拒', adjustZero.code !== 200, adjustZero.msg)
+
   const rules = await req('GET', '/admin-api/level-rules', undefined, adminToken)
   const newRules = (rules.data || []).map((r) => ({ levelCode: r.levelCode, levelName: r.levelName, threshold: r.threshold }))
   check('TC-FR-14-02', '等级规则读取（V0~V3 四档阈值）', rules.code === 200 && (rules.data || []).length >= 4, (rules.data || []).map((r) => `${r.levelCode}≥${yuan(r.threshold)}`).join(' '))
   const saveRules = await req('PUT', '/admin-api/level-rules', newRules, adminToken)
   check('TC-FR-14-02', '等级规则可配置（留审计）', saveRules.code === 200, saveRules.msg)
+
+  // 说明：字段级校验中 FC-022（购物车 100 种类上限）与 FC-064（售后 7 天签收时限）
+  // 受演示数据 SKU 规模与时间约束，转手工验证（见 docs/测试用例.md 六、M-08/M-09）。
 
   // ===================== 汇总 =====================
   const passed = results.filter((r) => r.pass).length
