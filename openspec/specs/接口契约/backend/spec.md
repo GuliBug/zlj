@@ -1,12 +1,12 @@
 # 接口契约 Specification — backend
 
 ## Purpose
-前后端唯一契约来源（单端能力：后端语义）。统一响应包装 `AjaxResult{code,msg,data}`（code=200 成功）；分页参数 `page`(1 起)/`size`(默认10)，分页数据 `{total,rows}` 放在 data 内。登录态经请求头 `X-Token` 传递（买家前缀 MBR-，管理员前缀 ADM-）。金额一律整数「分」。错误响应 `{code:500, msg:"..."}`，业务校验失败 code=500。时间格式 `yyyy-MM-dd HH:mm:ss`。
+前后端唯一契约来源（单端能力：后端语义）。统一响应包装 `AjaxResult{code,msg,data}`（code=200 成功，401 未登录）；分页参数 `page`(1 起)/`size`(默认10)，分页数据 `{total,rows}` 放在 data 内。登录态经请求头 `X-Token` 传递（买家前缀 MBR-，管理员前缀 ADM-）。金额一律整数「分」，时间格式 `yyyy-MM-dd HH:mm:ss`。
 
 ## Requirements
 
 ### Requirement: AC-01 会员接口 /api/member
-- `POST /api/member/login` body `{phone, smsCode}` → `data:{token, memberId, phone, levelName, points}`；验证码固定 123456；新手机号自动注册。错误验证码 code≠200。
+- `POST /api/member/login` body `{phone, smsCode}` → `data:{token, memberId, phone, levelName, points}`；验证码固定 123456；新手机号自动注册
 - `GET /api/member/me` → `data:{id, phone(脱敏138****1111), levelCode(V0|V1|V2|V3), levelName, points, totalPaid(分), nextLevelName, nextLevelGap(分)}`
 - `GET /api/member/points/logs?page=&size=` → `data:{total, rows:[{id, change(±), balanceAfter, reason, relatedNo, createdAt}]}`
 
@@ -15,16 +15,16 @@
 - **THEN** 返回 MBR- 前缀 token 与会员信息
 
 ### Requirement: AC-02 门店接口 /api/stores
-- `GET /api/stores` → `data:[{id, name, address, phone, status(OPEN|CLOSED)}]`
+- `GET /api/stores` → `data:[{id, name, address, phone, operatingHours, status(OPEN|CLOSED)}]`
 
 #### Scenario: 门店列表返回
 - **WHEN** GET /api/stores
-- **THEN** 返回门店数组，含 name/address/phone/status（OPEN|CLOSED）
+- **THEN** 返回门店数组，含 name/address/phone/operatingHours/status（OPEN|CLOSED）
 
 ### Requirement: AC-03 商品接口 /api/products
 - `GET /api/categories` → `data:[{id, name, parentId, children:[...]}]`
-- `GET /api/products?keyword=&categoryId=&page=&size=` → `data:{total, rows:[{id, name, image, priceMin(分), priceMax, sales, status(ON|OFF)}]}`（仅上架商品对买家可见；keyword 支持名称/条码）
-- `GET /api/products/{id}` → `data:{id, name, brand, origin, description, images[], categoryId, categoryName, status, warnText(固定「长期过量咀嚼槟榔，有害口腔健康」), minorText(固定「不向未成年人销售」), skus:[{id, flavor, spec, barcode, price(分), stock(可用), sales}]}`；下架商品 status=OFF 仍可查详情但禁止下单
+- `GET /api/products?keyword=&categoryId=&page=&size=` → `data:{total, rows:[{id, name, image, priceMin(分), priceMax, sales, status(ON|OFF)}]}`（仅上架商品对买家可见；keyword 支持名称/条码/品牌）
+- `GET /api/products/{id}` → `data:{id, name, brand, origin, description, images[], categoryId, categoryName, status, warnText(固定「长期过量咀嚼槟榔，有害口腔健康」), minorText(固定「不向未成年人销售」), skus:[{id, flavor, spec, barcode, price(分), stock(可用), sales}]}`
 - `GET /api/products/{id}/remind` → 到货提醒登记 → `data:"ok"`
 
 #### Scenario: 仅上架商品对买家可见
@@ -33,15 +33,15 @@
 
 ### Requirement: AC-04 购物车接口 /api/cart
 - `GET /api/cart` → `data:{rows:[{id, skuId, productId, name, image, flavor, spec, price(分), quantity, stock, checked, invalid(下架/失效标识)}], totalQuantity}`
-- `POST /api/cart` body `{skuId, quantity}` → 加购（合并同 SKU，单 SKU 上限 999，购物车 SKU 种类上限 100 超限报「购物车已满」）
-- `POST /api/cart/update` body `{id, quantity?, checked?}` 
+- `POST /api/cart` body `{skuId, quantity}` → 加购（合并同 SKU，单 SKU 上限 999，种类上限 100 报「购物车已满」）
+- `POST /api/cart/update` body `{id, quantity?, checked?}`
 - `POST /api/cart/delete` body `{ids:[...]}`
 - `POST /api/cart/check-all` body `{checked}`
 - `POST /api/cart/clear-invalid` → 清除失效商品
 
 #### Scenario: 同 SKU 合并加购
 - **WHEN** 对购物车已有 SKU 再次加购
-- **THEN** 数量合并且单 SKU 上限 999，购物车 SKU 种类超 100 报「购物车已满」
+- **THEN** 数量合并且单 SKU 上限 999
 
 ### Requirement: AC-05 地址接口 /api/addresses
 - `GET /api/addresses` → `data:[{id, receiver, phone, region, detail, isDefault}]`
@@ -54,11 +54,10 @@
 
 ### Requirement: AC-06 订单接口 /api/orders
 - `POST /api/orders` body `{idempotentKey(UUID), fulfillmentType(EXPRESS|PICKUP), storeId?(PICKUP必填), addressId?(EXPRESS必填), usePoints(bool), items:[{skuId, quantity}]}` → `data:{orderNo, goodsAmount(分), freight(分), pointsDeduction(分), payAmount(分), pointsUsed, status}`
-  - 服务端计算全部金额；运费：EXPRESS 满 9900 分包邮否则 1000 分，PICKUP 为 0；积分抵现 100 积分=1 元且 ≤ payAmount 前 5%（抵扣前金额）；单笔 payAmount ≤ 500000 分
-  - 幂等：同 idempotentKey 5 分钟内重复提交返回首次订单（data 相同），不重复创建
-  - 库存不足：code=500，msg 含缺货 SKU 名称与剩余可购数量
+  - 服务端计算全部金额；运费：EXPRESS 满 9900 分包邮否则 1000 分，PICKUP 为 0；积分抵现 100 积分=1 元且 ≤ 抵扣前金额 5%；单笔 payAmount ≤ 500000 分
+  - 幂等：同 idempotentKey 5 分钟内重复提交返回首次订单；库存不足 code=500，msg 含缺货 SKU 名称与剩余可购数量
 - `GET /api/orders?status=&page=&size=` → `data:{total, rows:[{orderNo, status, statusText, payAmount, createdAt, items:[{name, image, flavor, spec, price, quantity}], fulfillmentType}]}`；status 枚举 WAIT_PAY/PAID/SHIPPED/PICKUP_WAIT/COMPLETED/CLOSED/AFTER_SALE
-- `GET /api/orders/{no}` → 订单详情：含金额明细、收货信息/自提门店、物流信息 `{logisticsCompany, logisticsNo}`、时间轴 `timeline:[{action, time, remark}]`（含合并的最新售后单流转记录，售后节点 action 前缀「售后 · 」）、PICKUP_WAIT 态含 `pickupCode`（服务端算当前分钟窗口码）；存在售后单时含 `aftersale:{afterSaleNo, status, statusText, typeText, refundAmount}`（最新一笔售后单摘要）
+- `GET /api/orders/{no}` → 订单详情：含金额明细、收货信息/自提门店、物流信息 `{logisticsCompany, logisticsNo}`、时间轴 `timeline:[{action, time, remark}]`（含合并的最新售后单流转记录，售后节点 action 前缀「售后 · 」）、PICKUP_WAIT 态含 `pickupCode`；存在售后单时含 `aftersale:{afterSaleNo, status, statusText, typeText, refundAmount}`
 - `POST /api/orders/{no}/pay` → 模拟支付成功；非 WAIT_PAY 拒绝（幂等）
 - `POST /api/orders/{no}/cancel` → 仅 WAIT_PAY 可取消，释放预占
 - `POST /api/orders/{no}/confirm` → 仅 SHIPPED 可确认收货 → COMPLETED
@@ -91,7 +90,7 @@
 - **THEN** flow 追加一条记录，双端可见，不可删改
 
 ### Requirement: AC-09 管理端登录与看板 /admin-api
-- `POST /admin-api/login` body `{username, password}` → `data:{token(ADM-), username, nickname}`（种子 admin/admin123）
+- `POST /admin-api/login` body `{username, password}` → `data:{token(ADM-), username, nickname}`（种子 admin/admin123、manager/manager123）
 - `GET /admin-api/dashboard` → `data:{gmvToday(分), orderCountToday, payRate, pendingShip, pendingAftersale, stockAlertCount, salesTrend:[{date, gmv, orderCount}](近7日)}`
 
 #### Scenario: 看板数据返回
@@ -100,7 +99,7 @@
 
 ### Requirement: AC-10 管理端商品 /admin-api/products
 - `GET /admin-api/products?keyword=&status=&categoryId=&page=&size=` → `data:{total, rows:[...含 skus 摘要]}`
-- `GET /admin-api/products/{id}`；`POST /admin-api/products` body `{name, categoryId, brand, origin, description, images[], detailImages[], skus:[{flavor, spec, barcode, price, costPrice, stock}]}`（违禁词命中 code=500 msg 列出命中词；条码重复校验）
+- `POST /admin-api/products` body `{name, categoryId, brand, origin, description, images[], detailImages[], skus:[{flavor, spec, barcode, price, costPrice, stock}]}`（违禁词命中 code=500 msg 列出命中词；条码重复校验）
 - `PUT /admin-api/products/{id}`（改价对未支付订单不生效；变更留审计）
 - `POST /admin-api/products/status` body `{ids:[], status(ON|OFF)}` → 批量上下架，留审计
 - `POST /admin-api/check-banned-words` body `{text}` → `data:{hits:[...]}`
@@ -126,12 +125,12 @@
 - **THEN** 系统拒绝（提交人不得同时担任确认人）
 
 ### Requirement: AC-12 管理端门店与核销 /admin-api/stores
-- `GET /admin-api/stores`；`POST /admin-api/stores` body `{name, address, phone, status}`；`PUT /admin-api/stores/{id}`
+- `GET /admin-api/stores`；`POST /admin-api/stores` body `{name, address, phone, operatingHours, status}`；`PUT /admin-api/stores/{id}`
 - `GET /admin-api/verify-records?page=&size=&storeId=` → `rows:[{id, orderNo, storeName, verifier(店员), verifyTime, payAmount}]`
-- `POST /admin-api/verify` body `{orderNo, code, storeId}` → 核销（校验：订单状态=PICKUP_WAIT、码有效、门店匹配）→ 订单 COMPLETED + 库存实扣 + 核销记录 + 流转时间轴
+- `POST /admin-api/verify` body `{orderNo, code, storeId}` → 核销（校验：订单状态=PICKUP_WAIT、码=当前或上一分钟窗口有效码、门店匹配）→ 订单 COMPLETED + 库存实扣 + 核销记录 + 时间轴节点
 
 #### Scenario: 到店核销
-- **WHEN** 店员提交待自提订单核销码（码=当前或上一分钟窗口码且门店匹配）
+- **WHEN** 店员提交待自提订单核销码（码有效且门店匹配）
 - **THEN** 订单→COMPLETED、库存实扣、生成核销记录；码无效/门店不匹配返回明确失败原因
 
 ### Requirement: AC-13 管理端订单 /admin-api/orders
@@ -149,7 +148,7 @@
 - `GET /admin-api/aftersales/{no}` → 详情含买家申请信息+flow 时间线
 - `POST /admin-api/aftersales/{no}/audit` body `{approve(bool), opinion(必填)}` → 通过：REFUND_ONLY 直接触发退款；RETURN_REFUND → WAIT_RETURN；拒绝 → REJECTED（可重新申请）
 - `POST /admin-api/aftersales/{no}/confirm-return` → 退货退款确认收货 → 触发退款 + 库存回补
-- `POST /admin-api/aftersales/{no}/refund` → 幂等退款（重复调用不重复退款）；成功后售后单→REFUNDED、订单→COMPLETED 保持、积分按比例扣减
+- `POST /admin-api/aftersales/{no}/refund` → 幂等退款（重复调用不重复退款）；成功后售后单→REFUNDED、订单保持 COMPLETED、积分按比例扣减
 
 #### Scenario: 退款幂等
 - **WHEN** 对同一售后单重复调用 refund
@@ -157,7 +156,7 @@
 
 ### Requirement: AC-15 管理端会员 /admin-api/members
 - `GET /admin-api/members?keyword=&page=&size=` → 手机号脱敏
-- `POST /admin-api/members/{id}/points` body `{change(±), reason(必填)}` → 双重确认由前端承担；留审计
+- `POST /admin-api/members/{id}/points` body `{change(±), reason(必填)}` → 留审计
 - `GET /admin-api/level-rules` → `data:[{levelCode, levelName, threshold(累计实付分)}]`；`PUT /admin-api/level-rules` body `[{levelCode, threshold}]` → 留审计
 
 #### Scenario: 会员列表脱敏

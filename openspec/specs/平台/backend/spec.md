@@ -1,7 +1,7 @@
 # 平台 Specification — backend
 
 ## Purpose
-平台层横切规格（单端能力：系统侧）：登录态与安全、审计日志、资金安全三件套（幂等/对账/资损监控）、定时任务、数据留存、测试门禁，覆盖 PRD 第七节非功能与第十节安全要求。
+平台层横切规格（单端能力：系统侧）：登录态与安全、审计日志、资金安全三件套（幂等/对账/资损监控）、定时任务、数据留存、敏感信息脱敏、前端工程治理与测试门禁，覆盖 PRD 第七节非功能与第十节安全要求。
 
 ## Requirements
 
@@ -62,7 +62,7 @@ SHALL 有 30s 扫描的订单超时关单任务（15 分钟）与日终库存核
 - **THEN** 在 openspec change 中留档说明偏差
 
 ### Requirement: PF-06 质量门禁
-工程 SHALL 建立三层测试体系并作为回归门禁：单元测试（vitest 3.2.4，双端 npm test）、UI 级端到端（puppeteer 24.10.0 真实浏览器，H5 + Web 管理端）、接口级端到端（89 断言）；双端 SHALL 通过 ESLint（flat config）与 Prettier 检查（0 error）。测试依赖版本 SHALL 与参考工程对齐并在 package.json 固化。
+工程 SHALL 建立三层测试体系并作为回归门禁：单元测试（vitest 3.2.4，双端 npm test）、UI 级端到端（puppeteer 24.10.0 真实浏览器，H5 + Web 管理端）、接口级端到端（e2e-mall.mjs 真实 HTTP 对账全部接口）；双端 SHALL 通过 ESLint（flat config）与 Prettier 检查（0 error）。测试结果自动并入 docs/测试用例.md 与 docs/测试报告.md。
 
 #### Scenario: 回归门禁全绿
 - **WHEN** 执行 npm test、node tests/e2e/ui-e2e.mjs、ui-e2e-web.mjs、e2e-mall.mjs

@@ -6,7 +6,7 @@ H5 买家端页面层规格（单端能力：frontend，工程 frontend-h5，端
 ## Requirements
 
 ### Requirement: H5-01 页面清单
-SHALL 提供：首页（品牌导航+分类导航+商品列表）、分类/搜索、商品详情（SKU 弹层）、购物车、确认订单（快递/自提切换）、支付结果、订单列表/详情、售后申请/详情（时间线）、地址列表/编辑、会员中心、个人中心。
+SHALL 提供：首页（品牌导航+分类导航+商品列表）、分类/搜索、商品详情（SKU 弹层）、购物车、确认订单（快递/自提切换）、支付结果、订单列表/详情、售后申请/详情（时间线）、地址列表/编辑、会员中心、个人中心、门店信息（纯展示）。
 
 #### Scenario: 页面可达
 - **WHEN** 买家从首页进入分类/详情/购物车/我的
@@ -68,19 +68,15 @@ H5 工程 SHALL 以 `frontend-h5/src/pages.json` 作为页面配置唯一来源�
 - **WHEN** 购物车存在商品并进入购物车页
 - **THEN** 底部「结算(N)」按钮完整可见、可点击，位于 TabBar 上方，点击后进入确认订单页
 
-#### Scenario: UI 级回归
-- **WHEN** 运行 `node tests/e2e/ui-e2e.mjs`（需后端与 H5 dev 已启动）
-- **THEN** UC-01~UC-06 全部 PASS，任一元素被遮挡即 FAIL
-
 ### Requirement: H5-10 前端工具链对齐
-H5 工程依赖与脚本 SHALL 对齐参考工程工具链（sass / eslint9 / eslint-plugin-vue / prettier 及版本约束）；因本工程仅交付 H5 端（参考工程 mall-client 为 Taro4 weapp+h5 双端），不引入 `@tarojs/*`，该偏差已在 changes 记录为有意架构决策。
+H5 工程依赖与脚本 SHALL 对齐参考工程工具链（sass / eslint9 / eslint-plugin-vue / prettier 及版本约束）；因本工程仅交付 H5 端，不引入 `@tarojs/*`（有意架构决策）。
 
 #### Scenario: 工具链一致性
 - **WHEN** 在 H5 工程执行 npm run lint
 - **THEN** 使用对齐参考工程的 eslint9 + prettier 工具链，0 error 通过
 
 ### Requirement: H5-11 页面结构对齐交互原型
-H5 各页面 SHALL 以 `D:/projects/zlj/需求/槟榔商城-H5原型.html` 为结构基准：首页含品牌导航（印章+正隆記+当前门店展示+四正条）、健康警示条、hero 与四宫格、分档 chips、双列商品网格；详情页含四正本纪工艺块与健康警示框；TabBar 为 4 项（首页/全部商品/购物车/我的），订单/地址/售后/门店/核销码自「我的」进入；提供「门店信息」（纯展示）与「门店核销码」独立页面。页面数据 SHALL 来自真实接口，不得硬编码原型的示例数据。
+H5 各页面 SHALL 以 `D:/projects/zlj/需求/槟榔商城-H5原型.html` 为结构基准：首页含品牌导航（印章+正隆記+当前门店展示+四正条）、健康警示条、hero 与四宫格、分档 chips、双列商品网格；详情页含四正本纪工艺块与健康警示框；TabBar 为 4 项（首页/全部商品/购物车/我的），订单/地址/售后/门店/核销码自「我的」进入。页面数据 SHALL 来自真实接口，不得硬编码原型的示例数据。
 
 #### Scenario: 买家核对订单商品
 - **WHEN** 买家进入订单详情
