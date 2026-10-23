@@ -195,7 +195,7 @@ input, textarea, select { font-family: inherit; font-size: 14px; border: none; o
 .brand-t p { font-size: 10px; color: #d9b87f; letter-spacing: 2px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .store-chip {
   background: rgba(255,255,255,.12); border: 1px solid rgba(201,160,99,.55); color: #f3e2c0;
-  font-size: 11px; padding: 6px 10px; border-radius: 16px; cursor: pointer; white-space: nowrap; flex: none;
+  font-size: 11px; padding: 6px 10px; border-radius: 16px; white-space: nowrap; flex: none;
 }
 .brand-strip {
   margin-top: 8px; font-size: 10px; color: #d9b87f; letter-spacing: 1.5px;
@@ -237,7 +237,8 @@ input, textarea, select { font-family: inherit; font-size: 14px; border: none; o
 .four span { font-size: 9px; color: var(--text-2); letter-spacing: .5px; }
 
 /* ---- chips 分档 ---- */
-.chips { display: flex; gap: 8px; padding: 0 12px 10px; overflow-x: auto; }
+.chips { display: flex; gap: 8px; padding: 0 12px 10px; overflow-x: auto; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
 .chip { flex: none; padding: 6px 14px; background: var(--card); border-radius: 16px; font-size: 13px; color: var(--text-2); border: 1px solid var(--line); cursor: pointer; }
 .chip.on { background: var(--brand); color: #f7ead0; border-color: var(--brand); font-weight: 600; }
 

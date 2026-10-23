@@ -1,5 +1,5 @@
 {
-  "runAt": "2026-10-22T16:20:12.466Z",
+  "runAt": "2026-10-23T04:02:48.371Z",
   "total": 7,
   "passed": 7,
   "results": [
@@ -7,19 +7,19 @@
       "id": "UC-01",
       "name": "H5 页面真实登录成功",
       "pass": true,
-      "detail": "MBR-0048"
+      "detail": "MBR-aba3"
     },
     {
       "id": "UC-02",
       "name": "详情页加入购物车（购物车数量增加）",
       "pass": true,
-      "detail": "totalQuantity=2"
+      "detail": "totalQuantity=5"
     },
     {
       "id": "UC-02B",
       "name": "购物车页角标与数量同步",
       "pass": true,
-      "detail": "badge=2"
+      "detail": "badge=5"
     },
     {
       "id": "UC-03",
@@ -37,7 +37,7 @@
       "id": "UC-05",
       "name": "提交订单→立即支付→跳转支付结果",
       "pass": true,
-      "detail": "url=http://localhost:10086/#/pay-result/20261023002005182029?from=checkout"
+      "detail": "url=http://localhost:10086/#/pay-result/20261023120241046221?from=checkout"
     },
     {
       "id": "UC-06",

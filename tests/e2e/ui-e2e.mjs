@@ -1,8 +1,14 @@
 // UI 级端到端验证：走真实浏览器操作路径，断言关键操作元素「可见且可点击」（未被遮挡）
 // 覆盖 UC-01~UC-05；前置：后端 8080 + H5 10086 已启动
 import { createRequire } from 'node:module'
+import path from 'node:path'
+import fs from 'node:fs'
+import { fileURLToPath } from 'node:url'
 const require = createRequire(import.meta.url)
 const puppeteer = require(new URL('../../frontend-web/node_modules/puppeteer', import.meta.url).pathname.replace(/^\/([A-Za-z]):/, '$1:'))
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
+const OUT_DIR = path.join(ROOT, 'docs/screenshots')
+fs.mkdirSync(OUT_DIR, { recursive: true })
 
 const results = []
 function check(id, name, pass, detail = '') {
@@ -129,11 +135,10 @@ try {
   check('UC-ERR', '脚本执行异常', false, e.message)
 }
 
-await page.screenshot({ path: 'D:/projects/zhenglongji-mall/docs/screenshots/h5-cart-fixed.png' })
+await page.screenshot({ path: path.join(OUT_DIR, 'h5-cart-fixed.png') })
 await browser.close()
 
 const passed = results.filter((r) => r.pass).length
 console.log(`\n汇总: ${passed}/${results.length} 通过`)
-const fs = await import('node:fs')
-fs.writeFileSync('D:/projects/zhenglongji-mall/tests/e2e/ui-last-run.json', JSON.stringify({ runAt: new Date().toISOString(), total: results.length, passed, results }, null, 2))
+fs.writeFileSync(path.join(ROOT, 'tests/e2e/ui-last-run.json'), JSON.stringify({ runAt: new Date().toISOString(), total: results.length, passed, results }, null, 2))
 process.exit(passed === results.length ? 0 : 1)

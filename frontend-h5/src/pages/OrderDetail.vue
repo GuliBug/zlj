@@ -86,13 +86,16 @@
     <div class="minor" style="margin-bottom:60px">如有疑问可联系掌柜小二：工作日 9:00-18:00 · 400-XXX-XXXX</div>
 
     <!-- 吸底操作 -->
-    <div class="bottom-bar" v-if="d.status === 'WAIT_PAY' || d.status === 'SHIPPED' || canAftersale">
+    <div class="bottom-bar" v-if="d.status === 'WAIT_PAY' || d.status === 'SHIPPED' || canAftersale || afterSaleOngoing">
       <template v-if="d.status === 'WAIT_PAY'">
         <button class="btn btn-gray" style="flex:1" @click="cancel">取消订单</button>
         <button class="btn btn-buy" style="flex:1" @click="payNow">立即支付</button>
       </template>
       <template v-else-if="d.status === 'SHIPPED'">
         <button class="btn btn-main" style="flex:1" @click="confirmRecv">确认收货</button>
+      </template>
+      <template v-else-if="afterSaleOngoing">
+        <button class="btn btn-buy" style="flex:1" @click="$router.push('/aftersale/' + d.aftersale.afterSaleNo)">查看售后进度</button>
       </template>
       <template v-else>
         <button class="btn btn-buy" style="flex:1" @click="$router.push('/aftersale/new/' + d.orderNo)">申请售后</button>
@@ -127,6 +130,8 @@ const recv = computed(() => {
   return x.address || (x.receiver ? { receiver: x.receiver, phone: x.receiverPhone, addressText: x.addressText } : null)
 })
 const canAftersale = computed(() => ['COMPLETED', 'AFTER_SALE', 'SHIPPED'].includes(d.value.status))
+// 售后单进行中（待审核/待寄回/退款中）：吸底主按钮改为「查看售后进度」
+const afterSaleOngoing = computed(() => !!d.value.aftersale && ['APPLYING', 'WAIT_RETURN', 'REFUNDING'].includes(d.value.aftersale.status))
 
 function goBack() {
   if (window.history.length > 1) router.back()

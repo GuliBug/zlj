@@ -22,15 +22,13 @@
           <span style="color:#cfc4b0">›</span>
         </div>
 
-        <!-- 自提门店块 -->
-        <div v-else class="addr" style="cursor:default" @click="showStoreSheet = true">
+        <!-- 自提门店块（单店模式：自动锁定唯一门店，不提供选择） -->
+        <div v-else class="addr" style="cursor:default">
           <div class="ico">🏪</div>
           <div class="txt">
-            <b>{{ pickupStore ? pickupStore.name : '选择自提门店' }}</b>
+            <b>{{ pickupStore ? pickupStore.name : '自提门店' }}</b>
             <span v-if="pickupStore">{{ pickupStore.address }} · 到店报手机尾号核销</span>
-            <span v-else>点击选择门店</span>
           </div>
-          <span style="color:#cfc4b0">›</span>
         </div>
       </div>
 
@@ -100,19 +98,6 @@
         </button>
       </template>
     </div>
-
-    <!-- 自提门店选择弹层 -->
-    <div class="mask" v-if="showStoreSheet" @click="showStoreSheet = false">
-      <div class="sheet" style="padding-bottom:24px" @click.stop>
-        <span class="sheet-close" @click="showStoreSheet = false">✕</span>
-        <div style="font-family:var(--kai);font-size:15px;letter-spacing:1px;margin-bottom:6px">选择自提门店</div>
-        <div v-for="s in stores" :key="s.id" class="store-card" :style="{ opacity: s.status !== 'OPEN' ? .5 : 1 }" @click="storeId = s.id; showStoreSheet = false">
-          <div class="s-ico">店</div>
-          <div class="s-t"><b>{{ s.name }}</b>{{ s.address }}<br>☎ {{ s.phone }}</div>
-          <span :style="{ color: storeId === s.id ? 'var(--brand)' : '#cfc4b0' }">{{ storeId === s.id ? '✓' : '›' }}</span>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div v-else-if="loaded">
@@ -128,7 +113,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { api, yuan, uuid } from '../api'
-import { store } from '../store'
+import { applyDefaultStore, store } from '../store'
 import { showToast, showAlert } from '../ui'
 import GoodsMedia from '../components/GoodsMedia.vue'
 
@@ -140,7 +125,6 @@ const member = ref(null)
 const fulfillmentType = ref('EXPRESS')
 const storeId = ref(null)
 const usePoints = ref(false)
-const showStoreSheet = ref(false)
 const phase = ref('form')
 const orderInfo = ref(null)
 const submitting = ref(false)
@@ -161,7 +145,7 @@ function pickAddress() {
 }
 async function submit() {
   if (fulfillmentType.value === 'EXPRESS' && !address.value) { showToast('请选择收货地址'); return }
-  if (fulfillmentType.value === 'PICKUP' && !storeId.value) { showToast('请选择自提门店'); return }
+  if (fulfillmentType.value === 'PICKUP' && !storeId.value) { showToast('自提门店暂不可用，请稍后再试'); return }
   submitting.value = true
   try {
     const payload = {
@@ -207,7 +191,8 @@ onMounted(async () => {
     member.value = me
     address.value = addrList.find(a => a.id === store.checkoutAddressId) ||
       addrList.find(a => a.isDefault) || addrList[0] || null
-    storeId.value = store.selectedStoreId || (storeList[0] && storeList[0].id)
+    applyDefaultStore(storeList)
+    storeId.value = store.selectedStoreId
   } finally { loaded.value = true }
 })
 </script>

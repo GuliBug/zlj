@@ -1,4 +1,4 @@
-schema: spec-driven
+schema: zlj-team
 
 context: |
   项目：正隆记槟榔商城（zhenglongji-mall），槟榔品牌「正隆记」的线上商城，含 H5 商城端（买家）与 Web 管理端（门店运营）。
@@ -19,33 +19,51 @@ context: |
   资金安全三件套：下单幂等键 5 分钟去重；退款幂等（售后单号+序号）；每日对账任务与资损监控告警（重复支付/异常金额/状态回跳/对账差异）。
   质量门禁（每个 change 的收尾任务必须包含）：后端 mvnw 构建通过；前端 npm run build 零报错；
   E2E 全部用例通过并生成测试报告（docs/测试报告.md）。
-  契约权威：openspec/specs/api-contract/spec.md 是前后端唯一契约来源；前端对契约有疑问时在对应 change 的
-  design.md「契约疑问」章节记录，由后端确认后更新，禁止直接改主规格。
+  产物划分（schema: zlj-team，按端拆分文件）：
+    - change 目录内产物：proposal.md（共享，定稿冻结+修订记录）、api.md（接口文档，存在接口新增/变更时必写，
+      字段级契约，归档时定稿契约同步进主规格库「接口契约」能力）、design/backend.md 与 design/frontend.md
+      （前端文件内部分 H5 / 管理端小节）、tasks/backend.md 与 tasks/frontend.md、
+      specs/<能力>/backend/spec.md 与 specs/<能力>/frontend/spec.md。
+    - 端语义：backend = 系统行为（接口行为、字段口径、状态机、数据一致性）；frontend = 页面渲染与交互。
+      横切单端能力（接口契约/平台只建 backend，H5买家端/管理端只建 frontend）。
+    - delta 目录名必须与主规格库能力目录名（中文）一致；delta spec.md 落在对应端子目录。
+    - 纯缺陷修复类小 change 允许只写涉及的端文件（如仅 design/backend.md），缺省端文件不建空壳。
+  契约权威：openspec/specs/接口契约/backend/spec.md 是前后端唯一契约来源；前端对契约有疑问时在
+  design/frontend.md「契约疑问」章节记录，由后端确认后更新 api.md 与主规格，禁止直接改主规格。
   语言：本仓库所有规划产物用中文撰写，技术标识符（类名/接口路径/字段）保留英文原文。
   提交：禁止 AI 自动 commit / push；由人工确认后提交。
 
 rules:
   proposal:
-    - 用中文描述「做什么 / 为什么」，并显式列出 out of scope（本期不做项）。
+    - 用中文描述「做什么 / 为什么」，并显式列出非目标（本期不做项）；定稿后冻结，范围变更走文末修订记录。
     - 每个变更都要能回溯到需求编号（如 FR-04-2、FR-11-3）或明确为新增能力。
+    - What Changes 与 Impact 按端分区（后端 / 前端）。
   design:
-    - 涉及接口变动时，必须同时更新 api-contract 能力的主规格（经 change 的 specs delta）。
-    - 跨端（前端/后端）协作的变更，在 design.md 写明各方责任与对接点。
+    - 按端拆分：design/backend.md（BD 决策编号）与 design/frontend.md（FD 决策编号，含 H5 / 管理端小节）。
+    - 设计文件只描述方案与取舍，不复制接口字段表（字段级契约在 api.md）。
+    - 涉及接口变动时，必须同时更新「接口契约」能力的主规格（经 change 的 specs delta）。
+  api:
+    - 逐接口给出请求/响应字段表与成功失败 JSON 示例（金额单位分、时间格式 ISO）；枚举字面值必须列全。
+    - 每个接口标注状态「待定稿」或「已定稿（前端已按此实现）」；先改 api.md 再动代码。
   specs:
     - 需求条目用 Requirement + Scenario 结构，保留原 PRD 编号作为可追溯锚点（如 ### Requirement: FR-04-2 下单幂等）。
     - 状态为 ⚠️/⬜ 的需求要明确标注 gap，便于后续变更候选跟踪。
   tasks:
-    - 任务拆到可在一次会话内完成的粒度；每条任务标注对应的需求编号。
-    - 收尾任务必须含质量门禁（build / test / e2e）与契约同步。
+    - 按端拆分：tasks/backend.md（按模块分组）与 tasks/frontend.md（按工程分组：H5 / 管理端）。
+    - 任务拆到可在一次会话内完成的粒度；每条任务标注对应的需求编号与验证方式。
+    - 收尾任务必须含质量门禁（mvnw compile / npm run build / E2E）与契约同步。
 
 operations:
   apply:
     guidance:
-      - 实现前先读取对应能力的 openspec/specs/<cap>/spec.md 作为当前事实来源。
+      - 实现前先读取对应能力的 openspec/specs/<能力>/<端>/spec.md 作为当前事实来源。
+      - 接口相关任务以 api.md 为准：先更新 api.md 再改代码，实现完成后回填 URL 与状态。
       - 代码改动完成后，先在本机跑质量门禁（后端构建 / 前端 build / E2E），全绿再标记任务完成。
       - 不自动提交；由人工在确认后提交。
   archive:
     guidance:
-      - 归档前确认所有任务已完成且门禁通过。
-      - 归档时同步 delta 规格到主规格库，并在摘要中说明本次变更触达的需求编号与新增/修改的能力。
+      - 归档前确认 tasks/backend.md 与 tasks/frontend.md 所有任务已完成且门禁通过。
+      - 归档前确认 api.md 无「待定稿」URL 且与实际实现一致（无接口变更的 change 除外）。
+      - 归档时同步 delta 规格到主规格库（各端 delta 合并进 specs/<能力>/<端>/spec.md），
+        定稿契约同步进「接口契约」能力，并在摘要中说明本次变更触达的需求编号与新增/修改的能力。
       - 若存在 ⚠️/⬜ gap，记录在归档摘要，便于后续变更跟进。

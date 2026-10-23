@@ -7,7 +7,7 @@
       <div class="hq-card">
         <div style="font-family:var(--kai);font-size:16px;letter-spacing:2px">到店出示 · 掌柜扫码核销</div>
         <div style="font-size:11px;color:var(--text-2);margin-top:4px">
-          当前门店：<b>{{ currentStoreName || '未选择门店' }}</b>（可在门店信息中切换）
+          当前门店：<b>{{ currentStoreName || '正隆记门店' }}</b>
         </div>
         <div class="qr" style="opacity:.35"></div>
         <div class="barcode" style="opacity:.35"></div>

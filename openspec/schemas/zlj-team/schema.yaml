@@ -1,0 +1,136 @@
+name: zlj-team
+version: 1
+description: 正隆记商城工作流 - 产物按端拆分文件（backend / frontend），api.md 接口文档为前后端唯一共享权威（后端语义写者），前端设计内部分 H5 / 管理端小节
+
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: 立项提案（共享文件，定稿后冻结）
+    template: proposal.md
+    instruction: |
+      创建立项提案，说明 WHY 与 WHAT。定稿后冻结；范围变更只在文末「修订记录」追加。
+
+      Sections:
+      - **Why**: 问题与时机（1-2 句 + 根因要点）
+      - **What Changes**: 按端分区（后端 / 前端），各端只描述己端变更
+      - **Capabilities**: 能力清单（New/Modified），沿用既有中文能力目录
+      - **Impact**: 按端分区（后端 / 前端）
+      - **非目标**: 明确本次不做什么
+      - **修订记录**:（定稿后追加）日期 + 摘要 + 提出方
+
+      Capabilities 与 specs 阶段的契约：每个能力对应 specs/<能力>/ 下按端拆分的
+      delta 文件（backend/spec.md / frontend/spec.md）。
+      本项目前端含两个工程：frontend-h5（买家 H5，端口 10086）与 frontend-web（管理端，端口 5173）。
+    requires: []
+
+  - id: specs
+    generates: "specs/**/*.md"
+    description: 能力规格（按端拆分文件）
+    template: spec.md
+    instruction: |
+      创建能力规格 delta 文件，定义系统应该做什么。规格是行为契约，不是实现计划。
+
+      delta 解析只识别 spec.md 文件名，因此「端」作为能力的子目录：
+      - specs/<能力>/backend/spec.md：系统行为需求（接口行为、字段口径、状态机、数据一致性，
+        SHALL 句式）——后端语义
+      - specs/<能力>/frontend/spec.md：页面交互需求（页面清单、渲染、交互、合规文案展示）——前端语义
+
+      归档时各端子目录合并进主规格库 specs/<能力>/<端>/spec.md，
+      能力目录聚合两端形成能力全景。
+
+      delta 内容要求：
+      - 新能力：文件以 ## Purpose 开头（50+ 字符）；既有能力的 delta 不加 Purpose
+      - Delta 操作（## 标题）：ADDED / MODIFIED（须含完整更新内容）/ REMOVED（须含 Reason 与
+        Migration）/ RENAMED（FROM:/TO: 格式）
+      - 每条需求：### Requirement: <名称> + SHALL/MUST 描述；每个场景：
+        #### Scenario: <名称> + WHEN/THEN 结构（必须恰好 4 个 #）
+      - 每条需求至少一个场景
+      - 修改既有能力时先读主规格库对应文件，MODIFIED 须整块复制原 requirement 再编辑，
+        标题文本必须与原文一致
+      - delta 目录名必须与主规格库既有能力目录名一致（中文）
+    requires:
+      - proposal
+
+  - id: design
+    generates: "design/**/*.md"
+    description: 技术设计（按端拆分：backend.md / frontend.md）
+    template: design.md
+    instruction: |
+      创建技术设计文件，说明 HOW。按端拆分：
+      - design/backend.md：后端设计——涉及模块与类落位、BD 决策（BD1/BD2...）、事务与一致性——后端语义
+      - design/frontend.md：前端设计——按工程分节（H5（frontend-h5）/ 管理端（frontend-web））、
+        FD 决策（FD1/FD2...）、页面与组件落位、契约疑问反馈区——前端语义
+
+      所有权规则：
+      - 设计文件只描述方案与取舍，不复制接口字段表（接口字段在 api.md）
+      - 前端「契约疑问」章节是向上游反馈的唯一通道：列出疑问/差异/期望，
+        等待 api.md 更新后关闭条目
+
+      每个文件的通用章节：
+      - **Context**: 仅为解释方案所需的现状与约束，动机见 proposal.md
+      - **Goals / Non-Goals**: 设计层边界，不复述 proposal 范围
+      - **Decisions**: 关键技术决策（编号 BD/FD）+ 备选方案与取舍理由
+      - **Risks / Trade-offs**: [风险] → 缓解措施
+      - **Open Questions**: 可安全延后的未知项，无则省略
+    requires:
+      - proposal
+      - specs
+
+  - id: api
+    generates: api.md
+    description: 接口文档（change 级前后端共享权威；后端语义写者，前端只读）
+    template: api.md
+    instruction: |
+      创建接口文档：把定稿的技术设计细化为字段级的接口契约——URL / 方法 / 鉴权 /
+      入参 / 响应结构 / 错误提示。本 change 存在接口新增或变更时必写；
+      纯前端/纯缺陷修复类 change 写明「无接口变更」并给出判断依据。
+
+      所有权规则：
+      - 后端语义为本文件唯一写者；前端只读消费
+      - 变更流程：先改本文件再动代码；定稿后的调整在「变更记录」追加
+      - 本文件只定义接口结构（字段名/类型/必填/校验/单位/枚举字面值）；
+        业务口径引用 specs/<能力>/backend/spec.md，不重复定义
+      - 归档时把定稿契约同步进主规格库 openspec/specs/接口契约/spec.md
+
+      内容要求：
+      - 文首给能力到接口的总览表（能力 / HTTP / URL / 说明 / 状态）
+      - 逐接口展开：请求字段表（字段/类型/必填/校验/说明）、响应结构表、
+        成功与失败 JSON 示例（金额单位分、时间格式 ISO）
+      - 枚举字面值必须列全（状态机流转值，如售后状态 APPLYING/WAIT_RETURN/REFUNDING/REFUNDED/REJECTED）
+      - 每个接口标注状态「待定稿」或「已定稿（前端已按此实现）」
+    requires:
+      - proposal
+      - specs
+      - design
+
+  - id: tasks
+    generates: "tasks/**/*.md"
+    description: 任务清单（按端拆分：backend.md / frontend.md）
+    template: tasks.md
+    instruction: |
+      创建任务清单。按端拆分（checkbox 勾选互不冲突）：
+      - tasks/backend.md：后端任务（按模块分组）——后端语义写并勾选
+      - tasks/frontend.md：前端任务（按工程分组：H5 / 管理端，标注依赖的 api.md 接口条目）——前端语义写并勾选
+
+      格式要求（apply 阶段解析 checkbox 追踪进度）：
+      - 相关任务归入 ## 数字标题下；每个任务必须是 checkbox：- [ ] X.Y 描述
+      - 任务粒度：一次会话可完成；按依赖排序；每个任务说明验证方式（命令/可观察行为）
+      - 涉及新增接口时，后端任务包含「先更新 api.md 再实现」的前置步骤与实现后回填项
+      - 后端收尾任务固定为：mvnw compile 零报错
+      - 前端收尾任务固定为：npm run build 零报错（H5 与管理端各自）
+      - E2E 收尾任务：node tests/e2e/e2e-mall.mjs 全部用例 PASS，更新 docs/测试用例.md 与 docs/测试报告.md
+
+      写任务前先检查 design 文件的 Open Questions，影响构建内容的先解决。
+    requires:
+      - specs
+      - design
+      - api
+
+apply:
+  requires: [ tasks ]
+  tracks: null
+  instruction: |
+    Read context files, work through pending tasks, mark complete as you go.
+    按 tasks/backend.md 与 tasks/frontend.md 的任务实施；接口相关任务以 api.md 为准
+    （先更新 api.md 再改代码，实现完成后回填 URL 与状态）。
+    Pause if you hit blockers or need clarification.

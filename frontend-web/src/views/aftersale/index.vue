@@ -44,7 +44,7 @@
       </el-table-column>
       <el-table-column label="操作" width="160" fixed="right">
         <template #default="{ row }">
-          <el-button v-if="row.status === 'PENDING_AUDIT'" type="primary" size="small" plain @click="openAudit(row)">审核</el-button>
+          <el-button v-if="row.status === 'APPLYING'" type="primary" size="small" plain @click="openAudit(row)">审核</el-button>
           <el-button v-if="row.status === 'REFUNDING'" type="primary" size="small" plain @click="doRefund(row)">退款</el-button>
           <el-button v-if="row.status === 'WAIT_RETURN'" size="small" plain @click="doConfirmReturn(row)">确认收货</el-button>
           <el-button v-if="row.status === 'REFUNDED'" link size="small" @click="openDetail(row)">退款流水</el-button>
@@ -121,7 +121,7 @@ import { listAftersales, getAftersale, auditAftersale, confirmReturn, refundAfte
 import { fen2yuan } from '@/utils/format'
 
 const statusOptions = [
-  { value: 'PENDING_AUDIT', label: '待审核' },
+  { value: 'APPLYING', label: '待审核' },
   { value: 'WAIT_RETURN', label: '待买家寄回' },
   { value: 'REFUNDING', label: '退款中' },
   { value: 'REFUNDED', label: '已退款' },
@@ -141,7 +141,7 @@ const auditForm = reactive({ afterSaleNo: '', approve: true, opinion: '', row: n
 const auditBody = ref('')
 
 function statusTag(status) {
-  return { PENDING_AUDIT: 'warning', WAIT_RETURN: 'warning', REFUNDING: 'warning', REFUNDED: 'success', REJECTED: 'danger' }[status] || 'info'
+  return { APPLYING: 'warning', WAIT_RETURN: 'warning', REFUNDING: 'warning', REFUNDED: 'success', REJECTED: 'danger' }[status] || 'info'
 }
 
 function certCount(row) {

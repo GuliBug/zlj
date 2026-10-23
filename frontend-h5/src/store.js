@@ -6,7 +6,8 @@ export const store = reactive({
   cartCount: 0,
   buyNow: null,        // {skuId, quantity, name, image, price, flavor, spec}
   checkoutAddressId: null,
-  selectedStoreId: Number(localStorage.getItem('storeId')) || null
+  selectedStoreId: null,
+  selectedStoreName: ''
 })
 
 export async function refreshCartCount() {
@@ -17,11 +18,14 @@ export async function refreshCartCount() {
   } catch { /* 忽略 */ }
 }
 
-export function selectStore(id, name) {
-  store.selectedStoreId = id
-  localStorage.setItem('storeId', id)
-  localStorage.setItem('storeName', name || '')
+/** 单店模式：不提供手动切换门店，默认取第一家营业中的门店，其余仅展示 */
+export function applyDefaultStore(list) {
+  if (store.selectedStoreId || !(list || []).length) return
+  const open = list.find(s => s.status === 'OPEN') || list[0]
+  store.selectedStoreId = open.id
+  store.selectedStoreName = open.name || ''
 }
+
 export function selectedStoreName() {
-  return localStorage.getItem('storeName') || ''
+  return store.selectedStoreName
 }

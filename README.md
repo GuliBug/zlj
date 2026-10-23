@@ -7,7 +7,7 @@
 
 ```
 zhenglongji-mall/
-├── openspec/         # SPEC 驱动开发：config.yaml + specs/（11 能力主规格库）+ changes/（archive）
+├── openspec/         # SPEC 驱动开发：config.yaml（schema: zlj-team）+ schemas/zlj-team/ + specs/（11 能力×按端主规格库）+ changes/（archive）
 ├── backend/          # Spring Boot 3.5 后端（若依分层：common / framework / mall，端口 8080）
 ├── frontend-h5/      # H5 商城端（Vue3 + Vite，端口 10086，买家；页面配置单一来源 src/pages.json，对齐参考工程 app.config 组织方式）
 ├── frontend-web/     # Web 管理端（Vue3 + Element Plus + Vite，端口 5173，运营）
@@ -66,6 +66,7 @@ node tests/e2e/gen-docs.mjs                   # 重新生成 docs/测试用例.m
 
 ## 规格管理
 
-- 主规格库 `openspec/specs/`：membership / catalog / cart / order / aftersale / stock / store / web-admin / h5-client / platform / api-contract
-- 契约权威：`openspec/specs/api-contract/spec.md`
+- 工作流 schema `zlj-team`（`openspec/schemas/zlj-team/`）：change 产物按端拆分文件 —— proposal.md（共享）、api.md（接口文档，先改文档再动代码）、design/backend.md+frontend.md、tasks/backend.md+frontend.md、specs/<能力>/<端>/spec.md
+- 主规格库 `openspec/specs/<能力>/<端>/spec.md`：会员 / 商品 / 购物车 / 订单 / 售后 / 库存 / 门店 / 平台 / 接口契约（backend），管理端 / H5买家端（frontend）
+- 契约权威：`openspec/specs/接口契约/backend/spec.md`
 - 工作流详见 `AGENTS.md`；测试文档见 `docs/测试用例.md` 与 `docs/测试报告.md`

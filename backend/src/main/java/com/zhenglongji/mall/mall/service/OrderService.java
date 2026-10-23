@@ -6,6 +6,8 @@ import com.zhenglongji.mall.common.core.page.TableDataInfo;
 import com.zhenglongji.mall.common.exception.ServiceException;
 import com.zhenglongji.mall.common.utils.MallUtils;
 import com.zhenglongji.mall.mall.domain.Address;
+import com.zhenglongji.mall.mall.domain.AfterSale;
+import com.zhenglongji.mall.mall.domain.AfterSaleFlow;
 import com.zhenglongji.mall.mall.domain.IdempotentRecord;
 import com.zhenglongji.mall.mall.domain.MallOrder;
 import com.zhenglongji.mall.mall.domain.Member;
@@ -18,6 +20,8 @@ import com.zhenglongji.mall.mall.domain.VerifyRecord;
 import com.zhenglongji.mall.mall.domain.dto.OrderBody;
 import com.zhenglongji.mall.mall.domain.dto.VerifyBody;
 import com.zhenglongji.mall.mall.repository.AddressRepository;
+import com.zhenglongji.mall.mall.repository.AfterSaleFlowRepository;
+import com.zhenglongji.mall.mall.repository.AfterSaleRepository;
 import com.zhenglongji.mall.mall.repository.IdempotentRecordRepository;
 import com.zhenglongji.mall.mall.repository.OrderItemRepository;
 import com.zhenglongji.mall.mall.repository.OrderRepository;
@@ -59,6 +63,8 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderTimelineRepository timelineRepository;
+    private final AfterSaleRepository afterSaleRepository;
+    private final AfterSaleFlowRepository afterSaleFlowRepository;
     private final IdempotentRecordRepository idempotentRecordRepository;
     private final ProductRepository productRepository;
     private final ProductSkuRepository skuRepository;
@@ -661,6 +667,26 @@ public class OrderService {
             nodeVo.put("time", node.getCreatedAt());
             nodeVo.put("remark", node.getRemark());
             timeline.add(nodeVo);
+        }
+
+        // 售后联动：合并最新售后单的流转记录到订单时间线，并附带售后单摘要（H5 订单详情展示售后进度）
+        AfterSale latest = afterSaleRepository.findByOrderNo(order.getOrderNo()).stream()
+                .max(java.util.Comparator.comparingLong(AfterSale::getId)).orElse(null);
+        if (latest != null) {
+            for (AfterSaleFlow f : afterSaleFlowRepository.findByAfterSaleIdOrderByCreatedAtAscIdAsc(latest.getId())) {
+                Map<String, Object> nodeVo = new LinkedHashMap<>();
+                nodeVo.put("action", "售后 · " + f.getAction());
+                nodeVo.put("time", f.getCreatedAt());
+                nodeVo.put("remark", f.getRemark() != null ? f.getRemark() : f.getOperator());
+                timeline.add(nodeVo);
+            }
+            Map<String, Object> asVo = new LinkedHashMap<>();
+            asVo.put("afterSaleNo", latest.getAfterSaleNo());
+            asVo.put("status", latest.getStatus());
+            asVo.put("statusText", AfterSaleService.statusText(latest.getStatus()));
+            asVo.put("typeText", AfterSaleService.typeText(latest.getType()));
+            asVo.put("refundAmount", latest.getRefundAmount());
+            data.put("aftersale", asVo);
         }
         data.put("timeline", timeline);
         if ("PICKUP_WAIT".equals(order.getStatus())) {

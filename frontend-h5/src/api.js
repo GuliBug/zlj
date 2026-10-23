@@ -7,6 +7,9 @@ import { showToast } from './ui'
 
 const TOKEN_KEY = 'token'
 
+// 401 批量跳转防抖：一次失效响应触发跳转后，后续并发请求不再重复弹 Toast
+let redirecting = false
+
 export function getToken() { return localStorage.getItem(TOKEN_KEY) || '' }
 export function setToken(t) { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY) }
 export function isLoggedIn() { return !!getToken() }
@@ -27,7 +30,18 @@ async function request(method, path, body, silent = false) {
   }
   if (json.code !== 200) {
     const err = new Error(json.msg || '请求失败')
-    if (!silent) showToast(err.message)
+    // 401：未登录或令牌已失效 —— 清除本地令牌并回登录页（带 redirect 回跳）；登录页本身除外，避免循环跳转
+    if (json.code === 401 && !location.hash.startsWith('#/login') && !redirecting) {
+      redirecting = true
+      setToken('')
+      const redirect = encodeURIComponent(location.hash.replace(/^#/, '') || '/member')
+      if (!silent) showToast(err.message)
+      location.hash = `#/login?redirect=${redirect}`
+      setTimeout(() => { redirecting = false }, 1000)
+    } else if (!silent && !redirecting) {
+      // 已在 401 跳转流程中时，后续并发失效请求不再重复弹 Toast
+      showToast(err.message)
+    }
     throw err
   }
   return json.data

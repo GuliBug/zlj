@@ -39,7 +39,6 @@
     <div style="padding: 4px 14px 16px">
       <button class="btn btn-gray" style="width:100%" @click="logout">退出登录</button>
     </div>
-
     <!-- 积分明细弹层 -->
     <div class="mask" v-if="showPoints" @click="showPoints = false">
       <div class="sheet" style="padding-bottom:24px" @click.stop>
@@ -67,6 +66,11 @@
       </div>
     </div>
   </div>
+
+  <!-- 未登录兜底：接口 401 时全局拦截会自动跳登录页，此处仅防闪现空白 -->
+  <div class="has-tabbar" v-else style="min-height:60vh;display:flex;align-items:center;justify-content:center">
+    <button class="btn" style="min-width:160px" @click="$router.push('/login')">请先登录</button>
+  </div>
 </template>
 
 <script setup>
@@ -91,7 +95,12 @@ function logout() {
 }
 
 onMounted(async () => {
-  me.value = await api.me()
+  try {
+    me.value = await api.me()
+  } catch {
+    // 401 已由 api.js 全局拦截跳转登录页，这里保持未登录兜底渲染
+    return
+  }
   // 四格统计：地址数 / 订单数 / 积分明细
   api.addresses().then(l => { addrCount.value = (l || []).length }).catch(() => {})
   api.orders({ page: 1, size: 1 }).then(d => { orderCount.value = d.total || 0 }).catch(() => {})
