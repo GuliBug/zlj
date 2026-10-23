@@ -1,6 +1,0 @@
-id: 2026-10-22-align-h5-page-config
-schema: spec-driven
-created: 2026-10-22
-status: archived
-capabilities: [h5-client]
-summary: H5 页面配置单一来源 pages.json（对齐参考工程 app.config.ts），触达 H5-01/H5-08。

@@ -1,6 +1,0 @@
-id: 2026-10-23-test-infra-hardening
-schema: spec-driven
-created: 2026-10-23
-status: archived
-capabilities: [platform, h5-client, web-admin]
-summary: 测试基建固化（vitest 3.2.4 / puppeteer 24.10.0 对齐参考工程）；UI 级 E2E 扩至 H5+Web 18 项；双端 lint 门禁；后端规范审查修复 2 项。回归：89/89 + 18/18 + 12/12。

@@ -1,6 +1,0 @@
-id: 2026-10-22-align-prototype-and-fix-order-detail
-schema: spec-driven
-created: 2026-10-22
-status: archived
-capabilities: [order, h5-client, web-admin, catalog, store]
-summary: 修复订单详情缺 items（P0）；H5/Web 按交互原型逐页重做；种子数据对齐原型门店/四档分类/6 商品；搜索匹配品牌；门店营业时间字段。回归：接口级 89/89 + UI 级 6/6。

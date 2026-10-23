@@ -1,6 +1,0 @@
-id: 2026-10-22-init-zhenglongji-mall
-schema: spec-driven
-created: 2026-10-22
-status: archived
-capabilities: [membership, catalog, cart, order, aftersale, stock, store, web-admin, h5-client, platform, api-contract]
-summary: 建立正隆记槟榔商城基线：11 能力主规格库 + 三端工程 + E2E 测试。触达 FR-01~FR-08、FR-10~FR-14、FR-16。gap：支付/短信模拟通道（RK-01）、对账简化版、导出同步 CSV。
