@@ -21,6 +21,13 @@
 - **WHEN** 可用库存 1 时两个请求同时下单
 - **THEN** 仅一个成功，另一个收到缺货提示
 
+### Requirement: FR-04-4 订单取消
+买家 SHALL 可取消本人 WAIT_PAY 订单：取消后订单置 CLOSED、释放预占库存（生成 RELEASE 流水）并追加时间轴节点；非 WAIT_PAY 状态取消被状态机拦截。
+
+#### Scenario: 取消释放预占
+- **WHEN** 买家取消待支付订单
+- **THEN** 订单关闭，对应 SKU 可用库存回补并生成 RELEASE 流水
+
 ### Requirement: FR-04-5 超时关单
 待支付订单超 15 分钟 SHALL 自动关闭并释放预占库存，关单前二次校验支付状态。
 

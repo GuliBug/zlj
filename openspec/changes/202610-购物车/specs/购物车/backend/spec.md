@@ -17,3 +17,10 @@
 #### Scenario: 失效行标识
 - **WHEN** 购物车内 SKU 对应商品被下架后查询购物车
 - **THEN** 该行 invalid=true
+
+### Requirement: FR-03-5 购物车数量与角标数据源
+购物车查询 SHALL 返回 totalQuantity（购物车总件数）作为 H5 底部导航角标数据源；购物车接口整体需会员登录。
+
+#### Scenario: 角标数据源
+- **WHEN** 买家加购/删除/改数后查询购物车
+- **THEN** totalQuantity 反映最新件数，H5 TabBar 角标同步刷新
