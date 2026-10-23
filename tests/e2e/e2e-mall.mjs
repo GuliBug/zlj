@@ -441,7 +441,7 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   // ===================== 八、到店自提与核销（FR-04-8 / ST） =====================
   const stores = await req('GET', '/api/stores')
   const storeId = stores.data?.[0]?.id
-  check('TC-ST-01', '门店列表可切换', stores.code === 200 && (stores.data || []).length >= 2, `门店 ${(stores.data || []).map((s) => s.name).join('/')}`)
+  check('TC-ST-01', '单店模式：仅默认门店且无切换', stores.code === 200 && (stores.data || []).length === 1 && stores.data[0].name === '正隆记总号', `门店 ${(stores.data || []).map((s) => s.name).join('/')}`)
 
   const pickupOrder = await req(
     'POST',

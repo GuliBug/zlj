@@ -48,11 +48,9 @@ public class DemoDataInitializer implements CommandLineRunner {
             return;
         }
 
-        // 门店（对齐原型：正隆记 3 家门店）
+        // 门店（单店模式：仅默认门店）
         Store xiangtan = store("正隆记总号", "湘潭市岳塘区岚霞路 6 号", "1737-321-0303", "09:00-22:00");
-        store("正隆记熙春路店", "湘潭市雨湖区熙春路 152 号金荣广场", "1530-732-7888", "09:00-22:00");
-        store("正隆记益阳领秀资江店", "益阳市资阳区五一东路领秀资江 9 栋", "1932-573-5988", "09:00-21:30");
-        log.info("种子门店就绪，自提门店示例: {}", xiangtan.getName());
+        log.info("种子门店就绪（单店模式）: {}", xiangtan.getName());
 
         // 档位分类（对齐原型 chips：口粮档/进阶档/待客档/礼盒典藏）
         Category staple = category("口粮档", null);
@@ -104,7 +102,7 @@ public class DemoDataInitializer implements CommandLineRunner {
             bannedWordRepository.save(bannedWord);
         }
 
-        log.info("=== 正隆记演示数据就绪：门店 2 家，商品 6 个，管理员 admin/admin123 ===");
+        log.info("=== 正隆记演示数据就绪：门店 1 家（单店模式），商品 6 个，管理员 admin/admin123 ===");
     }
 
     private Store store(String name, String address, String phone, String operatingHours) {

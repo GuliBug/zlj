@@ -4,9 +4,8 @@
     <div class="panel-card">
       <h3 class="panel-title">
         门店列表
-        <span class="r"><el-button type="primary" size="small" @click="openEdit(null)">＋ 新增门店</el-button></span>
       </h3>
-      <div class="timeline-note" style="margin: 0 0 12px">H5 端买家可切换门店；商品、核销码均跟随所属门店。门店信息变更即时同步 H5。</div>
+      <div class="timeline-note" style="margin: 0 0 12px">单店模式：全站仅默认门店「正隆记总号」，不支持新增或切换；门店信息变更即时同步 H5。</div>
       <el-table :data="stores">
         <el-table-column label="门店" min-width="170">
           <template #default="{ row }">
@@ -43,9 +42,6 @@
         <span class="lab">核销操作</span>
         <el-input v-model="verifyForm.orderNo" placeholder="订单号" style="width: 220px" size="small" />
         <el-input v-model="verifyForm.code" placeholder="6 位核销码" maxlength="6" style="width: 130px" size="small" />
-        <el-select v-model="verifyForm.storeId" placeholder="选择门店" style="width: 170px" size="small">
-          <el-option v-for="s in stores" :key="s.id" :label="s.name" :value="s.id" />
-        </el-select>
         <el-button type="primary" size="small" @click="doVerify">核销</el-button>
         <el-alert
 v-if="verifyResult" :type="verifyResult.success ? 'success' : 'error'" :closable="false" style="margin-top: 8px"
@@ -103,7 +99,7 @@ v-model:current-page="recordQuery.page" v-model:page-size="recordQuery.size"
     </div>
 
     <!-- 门店编辑弹窗 -->
-    <el-dialog v-model="editVisible" :title="form.id ? '编辑门店信息' : '新增门店'" width="460px" destroy-on-close>
+    <el-dialog v-model="editVisible" title="编辑门店信息" width="460px" destroy-on-close>
       <el-form :model="form" label-width="80px">
         <el-form-item label="名称" required><el-input v-model="form.name" /></el-form-item>
         <el-form-item label="地址" required><el-input v-model="form.address" /></el-form-item>
@@ -130,7 +126,7 @@ v-model:current-page="recordQuery.page" v-model:page-size="recordQuery.size"
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
-import { listStores, createStore, updateStore, verifyOrder, listVerifyRecords } from '@/api/store'
+import { listStores, updateStore, verifyOrder, listVerifyRecords } from '@/api/store'
 import { listOrders } from '@/api/order'
 import { fen2yuan } from '@/utils/format'
 
@@ -227,7 +223,7 @@ function prefillVerify(row) {
 }
 
 async function doVerify() {
-  if (!verifyForm.storeId) return ElMessage.warning('请选择门店')
+  if (!verifyForm.storeId) return ElMessage.warning('默认门店未就绪')
   if (!verifyForm.orderNo) return ElMessage.warning('请输入订单号')
   if (!/^\d{6}$/.test(verifyForm.code)) return ElMessage.warning('请输入 6 位核销码')
   try {
@@ -243,11 +239,7 @@ async function doVerify() {
 }
 
 function openEdit(row) {
-  if (row) {
-    Object.assign(form, { id: row.id, name: row.name, address: row.address, phone: row.phone, status: row.status, operatingHours: row.operatingHours || loadHoursCache()[row.id] || '' })
-  } else {
-    Object.assign(form, { id: null, name: '', address: '', phone: '', status: 'OPEN', operatingHours: '' })
-  }
+  Object.assign(form, { id: row.id, name: row.name, address: row.address, phone: row.phone, status: row.status, operatingHours: row.operatingHours || loadHoursCache()[row.id] || '' })
   editVisible.value = true
 }
 
@@ -255,18 +247,13 @@ async function submitStore() {
   if (!form.name || !form.address) return ElMessage.warning('名称与地址必填')
   // operatingHours 契约未定义：一并提交（后端不识别即忽略），并本地留存保证展示
   const payload = { name: form.name, address: form.address, phone: form.phone, status: form.status, operatingHours: form.operatingHours || undefined }
-  if (form.id) {
-    await updateStore(form.id, payload)
-    if (form.operatingHours) {
-      const cache = loadHoursCache()
-      cache[form.id] = form.operatingHours
-      localStorage.setItem(STORE_HOURS_KEY, JSON.stringify(cache))
-    }
-    ElMessage.success('保存成功')
-  } else {
-    await createStore({ name: form.name, address: form.address, phone: form.phone, status: form.status })
-    ElMessage.success('新增成功')
+  await updateStore(form.id, payload)
+  if (form.operatingHours) {
+    const cache = loadHoursCache()
+    cache[form.id] = form.operatingHours
+    localStorage.setItem(STORE_HOURS_KEY, JSON.stringify(cache))
   }
+  ElMessage.success('保存成功')
   editVisible.value = false
   loadStores()
 }

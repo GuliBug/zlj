@@ -1,5 +1,5 @@
 {
-  "runAt": "2026-10-23T02:26:44.295Z",
+  "runAt": "2026-10-23T07:32:31.584Z",
   "total": 11,
   "passed": 11,
   "results": [
@@ -7,7 +7,7 @@
       "id": "WC-01",
       "name": "管理端页面真实登录",
       "pass": true,
-      "detail": "ADM-16a7b9"
+      "detail": "ADM-cd7248"
     },
     {
       "id": "WC-02",
