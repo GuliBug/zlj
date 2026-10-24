@@ -1,13 +1,13 @@
 {
-  "runAt": "2026-10-23T07:32:31.584Z",
-  "total": 11,
-  "passed": 11,
+  "runAt": "2026-10-23T09:39:34.271Z",
+  "total": 20,
+  "passed": 20,
   "results": [
     {
       "id": "WC-01",
       "name": "管理端页面真实登录",
       "pass": true,
-      "detail": "ADM-cd7248"
+      "detail": "ADM-8ab406"
     },
     {
       "id": "WC-02",
@@ -62,6 +62,60 @@
       "name": "审计与告警页",
       "pass": true,
       "detail": "命中 .el-tabs__item"
+    },
+    {
+      "id": "WC-11",
+      "name": "商品编辑页（步骤条+表单回显）",
+      "pass": true,
+      "detail": "{\"steps\":true,\"inputs\":14}"
+    },
+    {
+      "id": "WC-12",
+      "name": "订单发货弹窗（仅待发货可发）",
+      "pass": true,
+      "detail": "订单发货（仅待发货可发） | ok"
+    },
+    {
+      "id": "WC-13",
+      "name": "售后审核弹窗（意见必填）",
+      "pass": true,
+      "detail": "售后审核 | ok"
+    },
+    {
+      "id": "WC-14",
+      "name": "会员积分调整弹窗",
+      "pass": true,
+      "detail": "调整积分"
+    },
+    {
+      "id": "WC-15",
+      "name": "等级规则设置弹窗（留审计）",
+      "pass": true,
+      "detail": "会员等级规则设置"
+    },
+    {
+      "id": "WC-16",
+      "name": "库存入库弹窗（批次号必填）",
+      "pass": true,
+      "detail": "商品入库"
+    },
+    {
+      "id": "WC-17",
+      "name": "库存冻结弹窗（填原因）",
+      "pass": true,
+      "detail": "冻结库存"
+    },
+    {
+      "id": "WC-18",
+      "name": "门店核销操作面板（订单号+码+核销按钮）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "WC-19",
+      "name": "商品列表操作入口（导出）",
+      "pass": true,
+      "detail": ""
     },
     {
       "id": "WC-ERR",

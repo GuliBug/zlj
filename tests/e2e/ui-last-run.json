@@ -1,25 +1,25 @@
 {
-  "runAt": "2026-10-23T04:02:48.371Z",
-  "total": 7,
-  "passed": 7,
+  "runAt": "2026-10-23T09:35:53.173Z",
+  "total": 20,
+  "passed": 20,
   "results": [
     {
       "id": "UC-01",
       "name": "H5 页面真实登录成功",
       "pass": true,
-      "detail": "MBR-aba3"
+      "detail": "MBR-baa1"
     },
     {
       "id": "UC-02",
       "name": "详情页加入购物车（购物车数量增加）",
       "pass": true,
-      "detail": "totalQuantity=5"
+      "detail": "totalQuantity=1"
     },
     {
       "id": "UC-02B",
       "name": "购物车页角标与数量同步",
       "pass": true,
-      "detail": "badge=5"
+      "detail": "badge=1"
     },
     {
       "id": "UC-03",
@@ -37,13 +37,91 @@
       "id": "UC-05",
       "name": "提交订单→立即支付→跳转支付结果",
       "pass": true,
-      "detail": "url=http://localhost:10086/#/pay-result/20261023120241046221?from=checkout"
+      "detail": "url=http://localhost:10086/#/pay-result/20261023173523061985?from=checkout"
     },
     {
       "id": "UC-06",
       "name": "商品详情吸底操作栏可见且可点击",
       "pass": true,
       "detail": ""
+    },
+    {
+      "id": "UC-07",
+      "name": "首页渲染（警示条/分档 chips/商品网格）",
+      "pass": true,
+      "detail": "{\"chips\":true,\"hero\":true,\"warn\":true,\"goods\":true}"
+    },
+    {
+      "id": "UC-08",
+      "name": "全部商品页按分类分节渲染",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-09",
+      "name": "门店信息页渲染（正隆记总号）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-10",
+      "name": "会员中心渲染（积分/退出入口）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-11",
+      "name": "收货地址页渲染（新增入口）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-12",
+      "name": "订单列表 6 状态 Tab 渲染",
+      "pass": true,
+      "detail": "tabs=6"
+    },
+    {
+      "id": "UC-13",
+      "name": "订单详情渲染（金额明细+吸底操作栏）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-14",
+      "name": "核销码页引导态（当前门店+提示从订单进入）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-15",
+      "name": "核销码页动态码展示（6 位）",
+      "pass": true,
+      "detail": "code=540452"
+    },
+    {
+      "id": "UC-16",
+      "name": "支付结果页渲染（下单成功引导）",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-17",
+      "name": "售后申请页渲染（说明/下拉/提交）",
+      "pass": true,
+      "detail": "{\"cards\":2,\"reasons\":6,\"btn\":true}"
+    },
+    {
+      "id": "UC-18",
+      "name": "售后记录列表页渲染",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "id": "UC-19",
+      "name": "未登录访问订单页跳转登录页",
+      "pass": true,
+      "detail": "http://localhost:10086/#/login?redirect=/orders"
     }
   ]
 }

@@ -1,5 +1,5 @@
 // UI 级端到端验证：走真实浏览器操作路径，断言关键操作元素「可见且可点击」（未被遮挡）
-// 覆盖 UC-01~UC-05；前置：后端 8080 + H5 10086 已启动
+// 覆盖 UC-01~UC-19（核心交易链路 + 全部页面渲染 + 401 回跳）；前置：后端 8080 + H5 10086 已启动
 import { createRequire } from 'node:module'
 import path from 'node:path'
 import fs from 'node:fs'
@@ -131,6 +131,123 @@ try {
   await sleep(1500)
   const c3 = await visuallyClickable(page, '.bottom-bar .btn')
   check('UC-06', '商品详情吸底操作栏可见且可点击', c3.ok, c3.why || '')
+
+  // ============ 以下为全页面覆盖（UC-07~UC-19） ============
+  // 页内 API 助手：走相对路径（Vite 代理到 8080），带当前登录 token
+  const pageApi = (p) =>
+    page.evaluate(async (u) => {
+      const r = await fetch(u, { headers: { 'X-Token': localStorage.getItem('token') } })
+      return (await r.json()).data
+    }, 'http://localhost:10086' + p)
+
+  const orderRows = (await pageApi('/api/orders?page=1&size=10')) || { rows: [] }
+  const anyOrder = (orderRows.rows || [])[0]
+  const pickupOrder = (orderRows.rows || []).find((o) => o.status === 'PICKUP_WAIT')
+
+  // UC-07 首页：警示条 + 分档 chips + 商品网格
+  await page.goto('http://localhost:10086/#/', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1800)
+  const home = await page.evaluate(() => ({
+    chips: !!document.querySelector('.chips'),
+    hero: !!document.querySelector('.hero'),
+    warn: /长期过量咀嚼槟榔/.test(document.body.innerText),
+    goods: /¥/.test(document.body.innerText)
+  }))
+  check('UC-07', '首页渲染（警示条/分档 chips/商品网格）', home.chips && home.hero && home.warn && home.goods, JSON.stringify(home))
+
+  // UC-08 全部商品页
+  await page.goto('http://localhost:10086/#/category', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1800)
+  const catOk = await page.evaluate(() => !!document.querySelector('.has-tabbar') && /¥/.test(document.body.innerText))
+  check('UC-08', '全部商品页按分类分节渲染', catOk)
+
+  // UC-09 门店信息页（单店模式）
+  await page.goto('http://localhost:10086/#/stores', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1500)
+  const storeOk = await page.evaluate(() => !!document.querySelector('.store-card') && /正隆记/.test(document.body.innerText))
+  check('UC-09', '门店信息页渲染（正隆记总号）', storeOk)
+
+  // UC-10 会员中心（掌柜卡/四格统计/退出）
+  await page.goto('http://localhost:10086/#/member', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1800)
+  const memberOk = await page.evaluate(() => !!document.querySelector('.has-tabbar') && /积分/.test(document.body.innerText) && /退出/.test(document.body.innerText))
+  check('UC-10', '会员中心渲染（积分/退出入口）', memberOk)
+
+  // UC-11 收货地址页
+  await page.goto('http://localhost:10086/#/addresses', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1500)
+  const addrOk = await page.evaluate(() => /新增收货地址/.test(document.body.innerText))
+  check('UC-11', '收货地址页渲染（新增入口）', addrOk)
+
+  // UC-12 订单列表 6 状态 Tab
+  await page.goto('http://localhost:10086/#/orders', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1800)
+  const tabCount = await page.evaluate(() => document.querySelectorAll('.otab').length)
+  check('UC-12', '订单列表 6 状态 Tab 渲染', tabCount === 6, `tabs=${tabCount}`)
+
+  // UC-13 订单详情（时间轴 + 吸底操作）
+  if (anyOrder) {
+    await page.goto('http://localhost:10086/#/order/' + anyOrder.orderNo, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await sleep(1800)
+    const odOk = await page.evaluate(() => !!document.querySelector('.has-bottom-bar') && /¥/.test(document.body.innerText))
+    check('UC-13', '订单详情渲染（金额明细+吸底操作栏）', odOk)
+  } else {
+    check('UC-13', '订单详情渲染（金额明细+吸底操作栏）', false, '无订单数据')
+  }
+
+  // UC-14 核销码页（无 orderId 引导态）
+  await page.goto('http://localhost:10086/#/verify-code', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1500)
+  const vcGuide = await page.evaluate(() => !!document.querySelector('.hq-card') && /— — — —/.test(document.body.innerText))
+  check('UC-14', '核销码页引导态（当前门店+提示从订单进入）', vcGuide)
+
+  // UC-15 核销码页（动态码态）
+  if (pickupOrder) {
+    await page.goto('http://localhost:10086/#/verify-code?orderId=' + pickupOrder.orderNo, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await sleep(2000)
+    const vcDyn = await page.evaluate(() => (document.querySelector('.hq-card .code')?.innerText || '').replace(/\s/g, ''))
+    check('UC-15', '核销码页动态码展示（6 位）', /^\d{6}$/.test(vcDyn), `code=${vcDyn}`)
+  } else {
+    check('UC-15', '核销码页动态码展示（6 位）', false, '无待自提订单')
+  }
+
+  // UC-16 支付结果页
+  if (pickupOrder) {
+    await page.goto('http://localhost:10086/#/pay-result/' + pickupOrder.orderNo, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await sleep(1800)
+    const prOk = await page.evaluate(() => !!document.querySelector('.result .ok') && /下单成功/.test(document.body.innerText))
+    check('UC-16', '支付结果页渲染（下单成功引导）', prOk)
+  } else {
+    check('UC-16', '支付结果页渲染（下单成功引导）', false, '无已支付订单')
+  }
+
+  // UC-17 售后申请页（说明卡 + 类型/原因下拉 + 提交按钮）
+  if (anyOrder) {
+    await page.goto('http://localhost:10086/#/aftersale/new/' + anyOrder.orderNo, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await sleep(1800)
+    const asOk = await page.evaluate(() => ({
+      cards: document.querySelectorAll('.card').length,
+      reasons: document.querySelectorAll('select')[1]?.options.length || 0,
+      btn: /提交申请/.test(document.body.innerText)
+    }))
+    check('UC-17', '售后申请页渲染（说明/下拉/提交）', asOk.cards >= 2 && asOk.reasons >= 3 && asOk.btn, JSON.stringify(asOk))
+  } else {
+    check('UC-17', '售后申请页渲染（说明/下拉/提交）', false, '无订单数据')
+  }
+
+  // UC-18 售后记录列表
+  await page.goto('http://localhost:10086/#/aftersales', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1500)
+  const asListOk = await page.evaluate(() => /售后/.test(document.body.innerText) && !/请登录|login/i.test(document.body.innerText))
+  check('UC-18', '售后记录列表页渲染', asListOk)
+
+  // UC-19 未登录访问受限页跳登录（携 redirect）
+  await page.evaluate(() => localStorage.removeItem('token'))
+  await page.goto('http://localhost:10086/#/orders', { waitUntil: 'domcontentloaded', timeout: 60000 })
+  await sleep(1500)
+  const redirected = page.url().includes('/login')
+  await page.evaluate((t) => localStorage.setItem('token', t), token)
+  check('UC-19', '未登录访问订单页跳转登录页', redirected, page.url())
 } catch (e) {
   check('UC-ERR', '脚本执行异常', false, e.message)
 }

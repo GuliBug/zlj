@@ -90,6 +90,14 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const search = await req('GET', '/api/products?keyword=' + encodeURIComponent('正隆记'))
   check('TC-FR-02-01', '关键字搜索命中', search.code === 200 && (search.data?.rows || []).length > 0, `命中 ${search.data?.total} 条`)
 
+  const cats = await req('GET', '/api/categories')
+  check(
+    'TC-FR-02-01',
+    '分类树返回父子结构（供首页分档渲染）',
+    cats.code === 200 && Array.isArray(cats.data) && cats.data.length > 0 && cats.data.every((c) => c.name && Array.isArray(c.children || [])),
+    `${(cats.data || []).length} 个顶级分类`
+  )
+
   // ===================== 三、购物车（FR-03） =====================
   // 选一个有库存且价格适中的 SKU
   const skuList = []
@@ -110,6 +118,22 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   await req('POST', '/api/cart/update', { id: cartId, quantity: 4, checked: true }, buyerToken)
   const cart2 = await req('GET', '/api/cart', undefined, buyerToken)
   check('TC-FR-03-02', '购物车改数量与勾选生效', (cart2.data?.rows || []).find((r) => r.id === cartId)?.quantity === 4)
+
+  // 全选/全不选与删除（FR-03-2 / FR-03-3），totalQuantity 为角标数据源
+  await req('POST', '/api/cart/check-all', { checked: false }, buyerToken)
+  const cartUnchecked = await req('GET', '/api/cart', undefined, buyerToken)
+  check('TC-FR-03-02', '全不选后所有行未勾选', cartUnchecked.code === 200 && (cartUnchecked.data?.rows || []).every((r) => !r.checked))
+  await req('POST', '/api/cart/check-all', { checked: true }, buyerToken)
+  const cartChecked = await req('GET', '/api/cart', undefined, buyerToken)
+  check(
+    'TC-FR-03-02',
+    '全选后所有行勾选（totalQuantity 同步）',
+    cartChecked.code === 200 && (cartChecked.data?.rows || []).every((r) => r.checked) && cartChecked.data?.totalQuantity > 0,
+    `totalQuantity=${cartChecked.data?.totalQuantity}`
+  )
+  await req('POST', '/api/cart/delete', { ids: [cartId] }, buyerToken)
+  const cartAfterDel = await req('GET', '/api/cart', undefined, buyerToken)
+  check('TC-FR-03-03', '购物车行删除生效', !(cartAfterDel.data?.rows || []).some((r) => r.id === cartId), `剩余 ${(cartAfterDel.data?.rows || []).length} 行`)
 
   // 字段级校验：购物车（FC-020 / FC-021）
   const cartBadQty = await req('POST', '/api/cart', { skuId: cheap.id, quantity: 0 }, buyerToken)
@@ -137,6 +161,28 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   await req('POST', '/api/addresses', { receiver: '默认B', phone: '13800001114', region: '湖南省湘潭市', detail: 'B 号', isDefault: true }, buyerToken)
   const addrList2 = await req('GET', '/api/addresses', undefined, buyerToken)
   check('FC-014', '重复设默认后仅一条默认地址（互斥）', addrList2.code === 200 && addrList2.data.filter((a) => a.isDefault).length === 1, `默认地址 ${addrList2.data.filter((a) => a.isDefault).length} 条`)
+
+  // 地址编辑 / 设默认 / 删除（FR-08-1）
+  const addrC = await req('POST', '/api/addresses', { receiver: '赵六', phone: '13800001115', region: '湖南省长沙市', detail: '临时地址' }, buyerToken)
+  const addrCId = addrC.data?.id
+  const addrUpd = await req('PUT', `/api/addresses/${addrCId}`, { receiver: '赵六六', phone: '13800001115', region: '湖南省长沙市', detail: '编辑后的地址' }, buyerToken)
+  const addrUpdList = await req('GET', '/api/addresses', undefined, buyerToken)
+  check(
+    'TC-FR-08-01',
+    '地址编辑生效',
+    addrUpd.code === 200 && (addrUpdList.data || []).some((a) => a.id === addrCId && a.receiver === '赵六六' && /编辑后/.test(a.detail)),
+    addrUpd.msg
+  )
+  await req('POST', `/api/addresses/${addrCId}/default`, undefined, buyerToken)
+  const addrDefaultList = await req('GET', '/api/addresses', undefined, buyerToken)
+  check(
+    'TC-FR-08-01',
+    '设为默认接口生效（唯一默认）',
+    addrDefaultList.data.find((a) => a.id === addrCId)?.isDefault === true && addrDefaultList.data.filter((a) => a.isDefault).length === 1
+  )
+  const addrDel = await req('DELETE', `/api/addresses/${addrCId}`, undefined, buyerToken)
+  const addrDelList = await req('GET', '/api/addresses', undefined, buyerToken)
+  check('TC-FR-08-01', '地址删除生效', addrDel.code === 200 && !(addrDelList.data || []).some((a) => a.id === addrCId), addrDel.msg)
 
   // ===================== 四、管理端基础（FR-10 / FR-16 / PL-02） =====================
   const badAdmin = await req('POST', '/admin-api/login', { username: 'admin', password: 'wrong' })
@@ -334,6 +380,30 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const paidList = await req('GET', '/api/orders?status=PAID&page=1&size=10', undefined, buyerToken)
   check('TC-FR-05-01', '订单列表按状态筛选（待发货）', paidList.code === 200 && (paidList.data?.rows || []).every((o) => o.status === 'PAID'), `共 ${paidList.data?.total} 单`)
 
+  // 积分抵扣下单（FR-07-2）：抵扣上限 5%，服务端计价，取消后返还
+  const meBeforeDeduct = await req('GET', '/api/member/me', undefined, buyerToken)
+  const pointsBefore = meBeforeDeduct.data?.points || 0
+  const storeNow = (await req('GET', '/api/stores')).data[0]
+  const deductOrder = await req(
+    'POST',
+    '/api/orders',
+    { idempotentKey: 'e2e-' + Date.now() + '-pt', fulfillmentType: 'PICKUP', storeId: storeNow.id, usePoints: true, items: [{ skuId: cheap.id, quantity: 1 }] },
+    buyerToken
+  )
+  const od = deductOrder.data || {}
+  const expectDeduct = Math.floor((od.goodsAmount + od.freight) * 5 / 100)
+  check(
+    'TC-FR-07-02',
+    '积分抵扣下单（抵扣≤5% 且金额为服务端计算）',
+    deductOrder.code === 200 && od.pointsDeduction === Math.min(pointsBefore, expectDeduct) && od.payAmount === od.goodsAmount + od.freight - od.pointsDeduction,
+    `积分 ${pointsBefore}，抵扣 ${od.pointsDeduction} 分，实付 ${yuan(od.payAmount || 0)} 元`
+  )
+  const meAfterDeduct = await req('GET', '/api/member/me', undefined, buyerToken)
+  check('TC-FR-07-02', '下单抵扣后积分账本扣减', meAfterDeduct.data?.points === pointsBefore - od.pointsUsed, `${pointsBefore} → ${meAfterDeduct.data?.points}`)
+  await req('POST', `/api/orders/${od.orderNo}/cancel`, undefined, buyerToken)
+  const meAfterCancelPts = await req('GET', '/api/member/me', undefined, buyerToken)
+  check('TC-FR-07-02', '取消订单后抵扣积分返还', meAfterCancelPts.data?.points === pointsBefore, `${meAfterDeduct.data?.points} → ${meAfterCancelPts.data?.points}`)
+
   // ===================== 六、发货 / 收货（FR-12-2 / FR-05-2） =====================
   const shipBad = await req('POST', `/admin-api/orders/${o1.orderNo}/ship`, { company: '', no: '' }, adminToken)
   check('TC-FR-12-02', '发货必填物流公司+单号', shipBad.code !== 200, shipBad.msg)
@@ -457,6 +527,10 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const vc1 = await req('GET', `/api/orders/${pickupOrder.data.orderNo}/verify-code`, undefined, buyerToken)
   check('TC-AC-07', '动态核销码 6 位（每分钟刷新）', vc1.code === 200 && /^\d{6}$/.test(String(vc1.data?.code)), `码 ${vc1.data?.code}, 剩余 ${vc1.data?.expiresInSec}s`)
 
+  const vc2 = await req('GET', `/api/orders/${pickupOrder.data.orderNo}/verify-code`, undefined, buyerToken)
+  const vcStable = vc2.data?.code === vc1.data?.code || (vc1.data?.expiresInSec || 0) < 5
+  check('TC-AC-07', '同一分钟窗口内核销码稳定（防截图盗用）', vc2.code === 200 && vcStable, `码1=${vc1.data?.code} 码2=${vc2.data?.code}`)
+
   // 字段级校验：核销（FC-052 / FC-053）
   const vNoParam = await req('POST', '/admin-api/verify', { orderNo: pickupOrder.data.orderNo, code: null, storeId }, adminToken)
   check('FC-052', '核销参数不完整被拒', vNoParam.code !== 200, vNoParam.msg)
@@ -530,6 +604,7 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   check('TC-PL-03', '审计日志记录阈值修改（操作人/前后值）', (auditForThreshold.data?.rows || []).some((l) => /阈值|库存/.test(l.action + l.module)))
 
   // ===================== 十、商品上下架与可见性（FR-10-3 / E2E 收尾） =====================
+  const createdBarcode = 'E2E-' + Date.now()
   const created = await req(
     'POST',
     '/admin-api/products',
@@ -541,7 +616,7 @@ const yuan = (fen) => (fen / 100).toFixed(2)
       description: 'E2E 上下架验证',
       images: ['/img/t1.jpg', '/img/t2.jpg', '/img/t3.jpg'],
       detailImages: [],
-      skus: [{ flavor: '原味', spec: '单包', barcode: 'E2E-' + Date.now(), price: 1200, costPrice: 600, stock: 20 }]
+      skus: [{ flavor: '原味', spec: '单包', barcode: createdBarcode, price: 1200, costPrice: 600, stock: 20 }]
     },
     adminToken
   )
@@ -560,8 +635,52 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const orderOffProduct = await req('POST', '/api/orders', { idempotentKey: 'e2e-' + Date.now() + '-g', fulfillmentType: 'EXPRESS', addressId, items: [{ skuId: (await req('GET', `/api/products/${createdId}`)).data.skus[0].id, quantity: 1 }] }, buyerToken)
   check('TC-FR-02-04', '下架商品禁止下单', orderOffProduct.code !== 200, orderOffProduct.msg)
 
+  // 到货提醒（FR-02-7）：下架商品可登记，在售商品拒绝
+  const remindOff = await req('POST', `/api/products/${createdId}/remind`, undefined, buyerToken)
+  check('TC-FR-02-07', '下架商品可登记到货提醒', remindOff.code === 200, remindOff.msg)
+  const remindOn = await req('POST', `/api/products/${pid}/remind`, undefined, buyerToken)
+  check('TC-FR-02-07', '在售商品登记到货提醒被拒', remindOn.code !== 200, remindOn.msg)
+
+  // 购物车失效行（FR-03-4）：下架商品行 invalid=true，可一键清除
+  await req('POST', '/api/cart', { skuId: (await req('GET', `/api/products/${createdId}`)).data.skus[0].id, quantity: 1 }, buyerToken)
+  const cartWithInvalid = await req('GET', '/api/cart', undefined, buyerToken)
+  check('TC-FR-03-04', '下架商品购物车行标记失效', cartWithInvalid.code === 200 && (cartWithInvalid.data?.rows || []).some((r) => r.invalid), `共 ${(cartWithInvalid.data?.rows || []).length} 行`)
+  const cleared = await req('POST', '/api/cart/clear-invalid', undefined, buyerToken)
+  const cartCleared = await req('GET', '/api/cart', undefined, buyerToken)
+  check('TC-FR-03-04', '一键清除失效行', cleared.code === 200 && !(cartCleared.data?.rows || []).some((r) => r.invalid), `剩余 ${(cartCleared.data?.rows || []).length} 行`)
+
+  // 管理端商品编辑改价（FR-10-2）：改价后买家端同步可见
+  const editRes = await req(
+    'PUT',
+    `/admin-api/products/${createdId}`,
+    {
+      name: 'E2E 测试商品 上下架用',
+      categoryId: 1,
+      brand: '正隆记',
+      origin: '湖南湘潭',
+      description: 'E2E 上下架验证（改价后）',
+      images: ['/img/t1.jpg', '/img/t2.jpg', '/img/t3.jpg'],
+      detailImages: [],
+      skus: [{ flavor: '原味', spec: '单包', barcode: createdBarcode, price: 1500, costPrice: 600, stock: 20 }]
+    },
+    adminToken
+  )
+  const priceAfterEdit = (await req('GET', `/api/products/${createdId}`)).data.skus[0].price
+  check('TC-FR-10-02', '商品编辑改价生效（买家端同步）', editRes.code === 200 && priceAfterEdit === 1500, `售价 ${priceAfterEdit} 分`)
+
   const auditAfterOff = await req('GET', '/admin-api/audit-logs?page=1&size=20', undefined, adminToken)
   check('TC-PL-03', '上下架操作写入审计日志', (auditAfterOff.data?.rows || []).some((l) => /上下架|商品状态/.test(l.action + l.detail)))
+
+  const auditModule = auditAfterOff.data?.rows?.[0]?.module
+  const auditFiltered = auditModule
+    ? await req('GET', `/admin-api/audit-logs?page=1&size=20&module=${encodeURIComponent(auditModule)}`, undefined, adminToken)
+    : null
+  check(
+    'TC-PL-03',
+    '审计日志按模块筛选生效且字段完整',
+    !!auditFiltered && auditFiltered.code === 200 && (auditFiltered.data?.rows || []).every((l) => l.module === auditModule && l.operator && l.createdAt),
+    `模块 ${auditModule}，命中 ${(auditFiltered?.data?.rows || []).length} 条`
+  )
 
   // ===================== 十一、会员管理（FR-14） =====================
   const members = await req('GET', '/admin-api/members?page=1&size=10', undefined, adminToken)
@@ -579,11 +698,38 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const adjustZero = await req('POST', `/admin-api/members/${memberId}/points`, { change: 0, reason: 'FC 校验' }, adminToken)
   check('FC-090', '积分变动值为 0 被拒', adjustZero.code !== 200, adjustZero.msg)
 
+  const pointLogsFull = await req('GET', '/api/member/points/logs?page=1&size=20', undefined, buyerToken)
+  check(
+    'TC-FR-07-01',
+    '积分流水字段完整（变动值/变动后余额/原因）',
+    (pointLogsFull.data?.rows || []).length > 0 && pointLogsFull.data.rows.every((l) => 'change' in l && 'balanceAfter' in l && 'reason' in l),
+    `流水 ${(pointLogsFull.data?.rows || []).length} 条`
+  )
+
   const rules = await req('GET', '/admin-api/level-rules', undefined, adminToken)
   const newRules = (rules.data || []).map((r) => ({ levelCode: r.levelCode, levelName: r.levelName, threshold: r.threshold }))
   check('TC-FR-14-02', '等级规则读取（V0~V3 四档阈值）', rules.code === 200 && (rules.data || []).length >= 4, (rules.data || []).map((r) => `${r.levelCode}≥${yuan(r.threshold)}`).join(' '))
   const saveRules = await req('PUT', '/admin-api/level-rules', newRules, adminToken)
   check('TC-FR-14-02', '等级规则可配置（留审计）', saveRules.code === 200, saveRules.msg)
+
+  // 等级升级联动（FR-07-1）：把 V1 阈值临时调到 1 分，支付后应升档（只升不降），再恢复原阈值
+  const rulesLow = newRules.map((r) => (r.levelCode === 'V1' ? { ...r, threshold: 1 } : r))
+  await req('PUT', '/admin-api/level-rules', rulesLow, adminToken)
+  const upgradeOrder = await req(
+    'POST',
+    '/api/orders',
+    { idempotentKey: 'e2e-' + Date.now() + '-lv', fulfillmentType: 'PICKUP', storeId: storeNow.id, usePoints: false, items: [{ skuId: cheap.id, quantity: 1 }] },
+    buyerToken
+  )
+  if (upgradeOrder.code === 200) await req('POST', `/api/orders/${upgradeOrder.data.orderNo}/pay`, undefined, buyerToken)
+  const meAfterLevel = await req('GET', '/api/member/me', undefined, buyerToken)
+  check(
+    'TC-FR-07-01',
+    '累计实付达阈值后自动升档（只升不降）',
+    meAfterLevel.data?.levelCode !== 'V0',
+    `当前等级 ${meAfterLevel.data?.levelCode} / ${meAfterLevel.data?.levelName}`
+  )
+  await req('PUT', '/admin-api/level-rules', newRules, adminToken)
 
   // 说明：字段级校验中 FC-022（购物车 100 种类上限）与 FC-064（售后 7 天签收时限）
   // 受演示数据 SKU 规模与时间约束，转手工验证（见 docs/测试用例.md 六、M-08/M-09）。
