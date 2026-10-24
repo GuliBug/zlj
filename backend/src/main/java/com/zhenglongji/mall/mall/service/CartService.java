@@ -141,6 +141,6 @@ public class CartService {
         if (images == null || images.isBlank()) {
             return null;
         }
-        return images.split(",")[0];
+        return images.split("\\|", -1)[0];
     }
 }

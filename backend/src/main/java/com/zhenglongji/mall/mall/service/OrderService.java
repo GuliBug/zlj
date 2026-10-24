@@ -699,7 +699,7 @@ public class OrderService {
         if (images == null || images.isBlank()) {
             return null;
         }
-        return images.split(",")[0];
+        return images.split("\\|", -1)[0];
     }
 
     private String csvCell(String value) {

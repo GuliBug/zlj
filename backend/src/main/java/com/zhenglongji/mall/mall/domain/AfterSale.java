@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -42,7 +43,8 @@ public class AfterSale {
 
     private String description;
 
-    /** 凭证图，逗号分隔 */
+    /** 凭证图，逗号分隔（URL 或 dataURL，base64 不含逗号）；大文本存储 */
+    @Lob
     private String images;
 
     /** 退款金额（分），服务端计算 */

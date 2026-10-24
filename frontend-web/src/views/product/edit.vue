@@ -112,28 +112,39 @@ v-model="row.stock" :min="0" :controls="false" size="small" style="width: 80px"
     <!-- 第③步 图片与详情 -->
     <div v-show="step === 2">
       <el-form label-width="90px" class="step-form">
-        <el-form-item label="主图 URL">
-          <el-input v-model="form.imagesText" placeholder="多个 URL 用英文逗号分隔（示意图）" />
-          <div class="img-preview">
-            <el-image v-for="(img, i) in mainImages" :key="i" :src="img" fit="cover" class="upbox-img" :preview-src-list="mainImages" preview-teleported>
-              <template #error>
-                <img :src="PLACEHOLDER_IMG" class="upbox-img" style="width: 100%; height: 100%; object-fit: cover" />
-              </template>
-            </el-image>
-            <div v-if="!mainImages.length" class="upbox">＋</div>
-            <div v-if="mainImages.length < 3" class="upbox">＋</div>
+        <el-form-item label="商品主图">
+          <div class="w-full">
+            <div class="img-preview">
+              <div v-for="(img, i) in form.images" :key="i" class="upbox-item">
+                <el-image :src="img" fit="cover" class="upbox-img" :preview-src-list="form.images" :initial-index="i" preview-teleported>
+                  <template #error>
+                    <img :src="PLACEHOLDER_IMG" class="upbox-img" style="width: 100%; height: 100%; object-fit: cover" />
+                  </template>
+                </el-image>
+                <span class="upbox-del" title="删除" @click="form.images.splice(i, 1)">×</span>
+              </div>
+              <div v-if="form.images.length < 3" class="upbox" title="上传主图" @click="mainImgInput?.click()">＋</div>
+            </div>
+            <div class="upbox-tip">点击 ＋ 选择本地图片，自动压缩后随商品保存（最多 3 张）</div>
           </div>
+          <input ref="mainImgInput" type="file" accept="image/*" style="display: none" @change="onMainImgChange" />
         </el-form-item>
-        <el-form-item label="详情图 URL">
-          <el-input v-model="form.detailImagesText" placeholder="多个 URL 用英文逗号分隔（示意图）" />
-          <div class="img-preview">
-            <el-image v-for="(img, i) in detailImages" :key="i" :src="img" fit="cover" class="upbox-img" :preview-src-list="detailImages" preview-teleported>
-              <template #error>
-                <img :src="PLACEHOLDER_IMG" class="upbox-img" style="width: 100%; height: 100%; object-fit: cover" />
-              </template>
-            </el-image>
-            <div v-if="!detailImages.length" class="upbox">＋</div>
+        <el-form-item label="详情图">
+          <div class="w-full">
+            <div class="img-preview">
+              <div v-for="(img, i) in form.detailImages" :key="i" class="upbox-item">
+                <el-image :src="img" fit="cover" class="upbox-img" :preview-src-list="form.detailImages" :initial-index="i" preview-teleported>
+                  <template #error>
+                    <img :src="PLACEHOLDER_IMG" class="upbox-img" style="width: 100%; height: 100%; object-fit: cover" />
+                  </template>
+                </el-image>
+                <span class="upbox-del" title="删除" @click="form.detailImages.splice(i, 1)">×</span>
+              </div>
+              <div v-if="form.detailImages.length < 6" class="upbox" title="上传详情图" @click="detailImgInput?.click()">＋</div>
+            </div>
+            <div class="upbox-tip">点击 ＋ 选择本地图片，自动压缩后随商品保存（最多 6 张）</div>
           </div>
+          <input ref="detailImgInput" type="file" accept="image/*" style="display: none" @change="onDetailImgChange" />
         </el-form-item>
         <el-form-item label="商品描述">
           <div class="w-full">
@@ -165,6 +176,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { getProduct, createProduct, updateProduct, checkBannedWords, listCategories } from '@/api/product'
 import { yuan2fen } from '@/utils/format'
 import { PLACEHOLDER_IMG } from '@/utils/placeholder'
+import { compressImage } from '@/utils/image'
 
 const route = useRoute()
 const router = useRouter()
@@ -181,8 +193,8 @@ const form = reactive({
   brand: '正隆記',
   origin: '湖南湘潭',
   description: '',
-  imagesText: '',
-  detailImagesText: '',
+  images: [],
+  detailImages: [],
   skus: []
 })
 
@@ -193,8 +205,31 @@ const descHits = ref([])
 let nameTimer = null
 let descTimer = null
 
-const mainImages = computed(() => form.imagesText.split(/[,，]/).map((s) => s.trim()).filter(Boolean))
-const detailImages = computed(() => form.detailImagesText.split(/[,，]/).map((s) => s.trim()).filter(Boolean))
+const mainImgInput = ref(null)
+const detailImgInput = ref(null)
+
+// 图片上传：选中即压缩为 dataURL（base64）追加；历史 URL（seed 数据 /img/*.jpg）同列表回显
+async function onMainImgChange(e) {
+  await pushImage(e, form.images, 3, '主图')
+}
+async function onDetailImgChange(e) {
+  await pushImage(e, form.detailImages, 6, '详情图')
+}
+async function pushImage(e, list, max, label) {
+  const file = e.target.files?.[0]
+  e.target.value = ''
+  if (!file) return
+  if (list.length >= max) {
+    ElMessage.warning(`${label}最多上传 ${max} 张`)
+    return
+  }
+  const dataUrl = await compressImage(file)
+  if (!dataUrl) {
+    ElMessage.error('图片读取失败，请换一张')
+    return
+  }
+  list.push(dataUrl)
+}
 
 const totalStock = computed(() => form.skus.reduce((a, s) => a + (Number(s.stock) || 0), 0))
 const totalValue = computed(() =>
@@ -358,8 +393,8 @@ async function submit(status) {
       origin: form.origin,
       status,
       description: form.description,
-      images: mainImages.value,
-      detailImages: detailImages.value,
+      images: form.images,
+      detailImages: form.detailImages,
       skus: form.skus.map((s) => {
         const full = String(s.specFull || '').trim()
         const flavor = full.split(/\s+/)[0] || ''
@@ -401,8 +436,8 @@ onMounted(async () => {
       brand: d.brand,
       origin: d.origin,
       description: d.description || '',
-      imagesText: (d.images || []).join(','),
-      detailImagesText: (d.detailImages || []).join(',')
+      images: [...(d.images || [])],
+      detailImages: [...(d.detailImages || [])]
     })
     form.skus = (d.skus || []).map((s) => ({
       id: s.id,
@@ -495,6 +530,28 @@ onMounted(async () => {
   width: 60px;
   height: 60px;
   border-radius: 8px;
+}
+.upbox-item {
+  position: relative;
+}
+.upbox-del {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 16px;
+  height: 16px;
+  line-height: 14px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 12px;
+  text-align: center;
+  border-radius: 0 0 0 8px;
+  cursor: pointer;
+}
+.upbox-tip {
+  font-size: 12px;
+  color: var(--text-2, #86909c);
+  margin-top: 6px;
 }
 .step-nav {
   margin-top: 18px;

@@ -8,6 +8,7 @@ public record ProductBody(
         String brand,
         String origin,
         String description,
+        String status,
         List<String> images,
         List<String> detailImages,
         List<ProductSkuBody> skus) {}

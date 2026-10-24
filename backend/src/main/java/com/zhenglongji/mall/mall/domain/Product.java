@@ -4,6 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -31,10 +32,12 @@ public class Product {
 
     private String description;
 
-    /** 主图，逗号分隔 */
+    /** 主图，逗号分隔（URL 或 dataURL，base64 不含逗号）；大文本存储 */
+    @Lob
     private String images;
 
-    /** 详情图，逗号分隔 */
+    /** 详情图，逗号分隔（URL 或 dataURL）；大文本存储 */
+    @Lob
     private String detailImages;
 
     private Integer sales;

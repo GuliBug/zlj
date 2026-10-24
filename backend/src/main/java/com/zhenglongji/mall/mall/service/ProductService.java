@@ -194,7 +194,8 @@ public class ProductService {
         product.setImages(join(body.images()));
         product.setDetailImages(join(body.detailImages()));
         product.setSales(0);
-        product.setStatus("OFF");
+        // status：仅 "ON"（提交上架）生效，OFF/null/非法值一律落草稿（BUG-09：此前恒为 OFF，提交上架不生效）
+        product.setStatus("ON".equals(body.status()) ? "ON" : "OFF");
         product.setCreatedAt(LocalDateTime.now());
         product = productRepository.save(product);
         saveSkus(product, body.skus());
@@ -438,10 +439,10 @@ public class ProductService {
         if (joined == null || joined.isBlank()) {
             return List.of();
         }
-        return List.of(joined.split(","));
+        return List.of(joined.split("\\|", -1));
     }
 
     private String join(List<String> images) {
-        return images == null ? null : String.join(",", images);
+        return images == null ? null : String.join("|", images);
     }
 }

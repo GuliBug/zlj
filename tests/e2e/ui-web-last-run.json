@@ -1,13 +1,13 @@
 {
-  "runAt": "2026-10-23T09:39:34.271Z",
-  "total": 20,
-  "passed": 20,
+  "runAt": "2026-10-24T07:41:44.831Z",
+  "total": 22,
+  "passed": 22,
   "results": [
     {
       "id": "WC-01",
       "name": "管理端页面真实登录",
       "pass": true,
-      "detail": "ADM-8ab406"
+      "detail": "ADM-364ead"
     },
     {
       "id": "WC-02",
@@ -67,7 +67,7 @@
       "id": "WC-11",
       "name": "商品编辑页（步骤条+表单回显）",
       "pass": true,
-      "detail": "{\"steps\":true,\"inputs\":14}"
+      "detail": "{\"steps\":true,\"inputs\":12}"
     },
     {
       "id": "WC-12",
@@ -116,6 +116,18 @@
       "name": "商品列表操作入口（导出）",
       "pass": true,
       "detail": ""
+    },
+    {
+      "id": "WC-20",
+      "name": "新增商品三步流程真实提交上架（含主图压缩上传）",
+      "pass": true,
+      "detail": "cat=true confirm=true thumb=true exists=true status=ON imgData=true url=http://127.0.0.1:5173/products"
+    },
+    {
+      "id": "WC-21",
+      "name": "售后审核真实通过并退款（状态转已退款）",
+      "pass": true,
+      "detail": "clicked=true refunded=true"
     },
     {
       "id": "WC-ERR",

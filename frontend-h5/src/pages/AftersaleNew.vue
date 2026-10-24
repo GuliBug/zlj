@@ -34,11 +34,14 @@
       <div class="field">
         <label>凭证图片（质量问题必填，1-3 张）</label>
         <div style="display:flex;gap:10px">
-          <div v-for="i in 3" :key="i" class="proof-slot" :class="{ on: proofs.includes(i) }" @click="toggleProof(i)">
-            <span v-if="proofs.includes(i)">✓</span><span v-else>＋</span>
+          <div v-for="i in 3" :key="i" class="proof-slot" :class="{ on: proofs[i - 1] }" @click="onSlotClick(i)">
+            <img v-if="proofs[i - 1]" :src="proofs[i - 1]" class="proof-img">
+            <span v-else>＋</span>
+            <span v-if="proofs[i - 1]" class="proof-del">×</span>
           </div>
+          <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="onFileChange">
         </div>
-        <div class="muted" style="font-size:11px;margin-top:6px">演示环境：以勾选占位代替上传图片</div>
+        <div class="muted" style="font-size:11px;margin-top:6px">点击空位选择本地图片，自动压缩后随申请提交；点击已传图片可删除</div>
       </div>
       <button class="btn btn-main" :disabled="submitting" @click="submit">
         {{ submitting ? '提交中…' : '提交申请' }}
@@ -53,12 +56,14 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { api } from '../api'
 import { showToast } from '../ui'
+import { compressImage } from '../image'
 
 const route = useRoute()
 const router = useRouter()
 const orderNo = route.params.orderNo
 const reasons = ref([])
 const proofs = ref([])
+const fileInput = ref(null)
 const submitting = ref(false)
 const form = ref({ type: 'RETURN_REFUND', reason: '', description: '' })
 
@@ -66,13 +71,26 @@ function goBack() {
   if (window.history.length > 1) router.back()
   else router.replace('/orders')
 }
-function toggleProof(i) {
-  const idx = proofs.value.indexOf(i)
-  if (idx >= 0) proofs.value.splice(idx, 1)
-  else if (proofs.value.length < 3) proofs.value.push(i)
+// 点已传槽位删除，点空槽位唤起文件选择
+function onSlotClick(i) {
+  if (proofs.value[i - 1]) proofs.value.splice(i - 1, 1)
+  else fileInput.value?.click()
+}
+async function onFileChange(e) {
+  const file = e.target.files?.[0]
+  e.target.value = ''
+  if (!file) return
+  const dataUrl = await compressImage(file)
+  if (!dataUrl) { showToast('图片读取失败，请换一张'); return }
+  if (proofs.value.length >= 3) { showToast('最多上传 3 张凭证'); return }
+  proofs.value.push(dataUrl)
 }
 async function submit() {
   if (!form.value.reason) { showToast('请选择售后原因'); return }
+  if (/质量问题/.test(form.value.reason) && !proofs.value.length) {
+    showToast('质量问题需上传凭证图片')
+    return
+  }
   submitting.value = true
   try {
     const d = await api.createAftersale({
@@ -80,7 +98,7 @@ async function submit() {
       type: form.value.type,
       reason: form.value.reason,
       description: form.value.description,
-      images: proofs.value.map(i => `凭证占位${i}`)
+      images: proofs.value
     })
     showToast('售后申请已提交（工单 ' + d.afterSaleNo + '）')
     router.replace('/aftersale/' + d.afterSaleNo)
@@ -92,8 +110,15 @@ onMounted(async () => { reasons.value = (await api.aftersaleReasons()) || [] })
 
 <style scoped>
 .proof-slot {
+  position: relative;
   width: 64px; height: 64px; border: 1px dashed #cfc4b0; border-radius: 8px;
   display: flex; align-items: center; justify-content: center; color: #cfc4b0; font-size: 24px; cursor: pointer;
+  overflow: hidden;
 }
-.proof-slot.on { border-color: var(--brand); color: var(--brand); }
+.proof-slot.on { border-color: var(--brand); }
+.proof-img { width: 100%; height: 100%; object-fit: cover; }
+.proof-del {
+  position: absolute; top: 0; right: 0; width: 16px; height: 16px; line-height: 14px;
+  background: rgba(0,0,0,.55); color: #fff; font-size: 12px; text-align: center; border-radius: 0 0 0 8px;
+}
 </style>

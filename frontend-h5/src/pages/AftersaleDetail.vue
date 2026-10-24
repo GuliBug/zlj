@@ -14,6 +14,14 @@
       </div>
     </div>
 
+    <!-- 申请凭证 -->
+    <div class="card" v-if="proofImgs.length">
+      <div class="card-title">申请凭证</div>
+      <div class="proof-row">
+        <img v-for="(src, i) in proofImgs" :key="i" :src="src" class="proof-img" @click="preview(src)">
+      </div>
+    </div>
+
     <!-- 流转记录时间线 -->
     <div class="card">
       <div class="card-title">流转记录</div>
@@ -49,6 +57,15 @@ const canCancel = computed(() => {
   const s = String(d.value.status || '')
   return ['APPLYING', 'PENDING', 'WAIT_AUDIT', 'SUBMITTED'].includes(s)
 })
+// 凭证图：后端返回数组；兼容历史字符串存储（分隔符 |，dataURL 内的 ;base64, 逗号不受影响）
+const proofImgs = computed(() => {
+  const im = d.value?.images
+  if (Array.isArray(im)) return im.filter(Boolean)
+  return String(im || '').split('|').filter(Boolean)
+})
+function preview(src) {
+  window.open(src, '_blank')
+}
 
 function goBack() {
   if (window.history.length > 1) router.back()
@@ -65,3 +82,8 @@ async function cancel() {
 
 onMounted(load)
 </script>
+
+<style scoped>
+.proof-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.proof-img { width: 96px; height: 96px; object-fit: cover; border-radius: 8px; border: 1px solid #eee2cf; cursor: pointer; }
+</style>

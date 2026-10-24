@@ -98,7 +98,7 @@ public class AfterSaleService {
         afterSale.setType(body.type());
         afterSale.setReason(body.reason());
         afterSale.setDescription(body.description());
-        afterSale.setImages(body.images() == null ? null : String.join(",", body.images()));
+        afterSale.setImages(body.images() == null ? null : String.join("|", body.images()));
         afterSale.setRefundAmount(computeRefundAmount(order, body.skuId()));
         afterSale.setStatus("APPLYING");
         afterSale.setOrderPrevStatus(order.getStatus());
@@ -365,7 +365,7 @@ public class AfterSaleService {
         data.put("skuId", a.getSkuId());
         data.put("reason", a.getReason());
         data.put("description", a.getDescription());
-        data.put("images", a.getImages() == null ? List.of() : List.of(a.getImages().split(",")));
+        data.put("images", a.getImages() == null ? List.of() : List.of(a.getImages().split("\\|", -1)));
         data.put("opinion", a.getOpinion());
         data.put("returnCompany", a.getReturnCompany());
         data.put("returnNo", a.getReturnNo());

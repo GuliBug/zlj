@@ -147,7 +147,7 @@ public class DemoDataInitializer implements CommandLineRunner {
         product.setBrand(brand);
         product.setOrigin(origin);
         product.setDescription(desc);
-        product.setImages("/img/zhenglongji-" + productSeq() + "-1.jpg,/img/zhenglongji-" + productSeq() + "-2.jpg,/img/zhenglongji-" + productSeq() + "-3.jpg");
+        product.setImages("/img/zhenglongji-" + productSeq() + "-1.jpg|/img/zhenglongji-" + productSeq() + "-2.jpg|/img/zhenglongji-" + productSeq() + "-3.jpg");
         product.setDetailImages("/img/zhenglongji-" + productSeq() + "-detail.jpg");
         product.setSales(0);
         product.setStatus(status);
