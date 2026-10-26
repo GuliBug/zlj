@@ -284,6 +284,9 @@ input, textarea, select { font-family: inherit; font-size: 14px; border: none; o
 .d-row { display: flex; justify-content: space-between; padding: 4px 12px; font-size: 11px; color: var(--text-2); }
 .craft { margin: 10px 12px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; font-size: 11px; color: var(--text-2); line-height: 1.8; }
 .craft b { color: var(--brand); display: block; font-family: var(--kai); font-size: 13px; margin-bottom: 6px; letter-spacing: 1px; }
+.detail-imgs-title { font-family: var(--kai); font-size: 15px; font-weight: 700; color: var(--ink); padding: 4px 12px 0; letter-spacing: 1px; }
+.d-detail-imgs { padding: 8px 12px 0; }
+.d-detail-imgs img { width: 100%; display: block; border-radius: var(--radius); border: 1px solid var(--line); margin-bottom: 8px; background: #f6f2ea; }
 
 /* ---- SKU 弹层 ---- */
 .mask { position: fixed; inset: 0; background: rgba(20,12,8,.5); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }

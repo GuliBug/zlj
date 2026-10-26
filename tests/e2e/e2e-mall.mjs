@@ -239,6 +239,31 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   const catNoName = await req('POST', '/admin-api/categories', { name: '', parentId: null }, adminToken)
   check('FC-076', '分类名称必填', catNoName.code !== 200, catNoName.msg)
 
+  // H5-13 契约锚点：买家详情接口回传 detailImages[]（主图与详情图分离，202610-H5买家端 增量）
+  const mediaProd = await req(
+    'POST',
+    '/admin-api/products',
+    {
+      name: 'H5-13 详情图回传锚点',
+      categoryId: 1,
+      brand: '正隆记',
+      origin: '湖南湘潭',
+      description: '详情图契约回传回归用',
+      images: ['/img/m1.jpg', '/img/m2.jpg'],
+      detailImages: ['/img/d1.jpg', '/img/d2.jpg'],
+      status: 'ON',
+      skus: [{ flavor: '原味', spec: '单包', barcode: 'H513-' + Date.now(), price: 100, costPrice: 50, stock: 5 }]
+    },
+    adminToken
+  )
+  const mediaDetail = await req('GET', `/api/products/${mediaProd.data?.id}`)
+  check(
+    'TC-H5-13',
+    '买家详情接口回传 detailImages[]（主图与详情图分离）',
+    mediaDetail.code === 200 && (mediaDetail.data?.images || []).length === 2 && Array.isArray(mediaDetail.data?.detailImages) && mediaDetail.data.detailImages.length === 2,
+    `images=${mediaDetail.data?.images?.length} detailImages=${mediaDetail.data?.detailImages?.length}`
+  )
+
   // 高价商品用于金额上限风控（FR-04-7）
   const expensive = await req(
     'POST',

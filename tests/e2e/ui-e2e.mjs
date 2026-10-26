@@ -66,6 +66,7 @@ async function api(method, p, body, token) {
   return r.json()
 }
 let asOrderNo = ''
+let mediaProdId = 0
 try {
   const admin = (await api('POST', '/admin-api/login', { username: 'admin', password: 'admin123' })).data?.token
   const bt2 = (await api('POST', '/api/member/login', { phone: '13900002222', smsCode: '123456' })).data?.token
@@ -86,6 +87,18 @@ try {
       await api('POST', `/api/orders/${o.data.orderNo}/confirm`, undefined, bt2)
       asOrderNo = o.data.orderNo
     }
+  }
+  // H5-13 多媒体用例数据：管理端创建多主图 + 详情图商品（dataURL 真实可渲染，避免依赖手工上传）
+  try {
+    const imgData = 'data:image/png;base64,' + fs.readFileSync(path.join(ROOT, 'tests/e2e/assets/sample.png')).toString('base64')
+    const mediaCreated = await api('POST', '/admin-api/products', {
+      name: 'UI 多媒体验证商品', categoryId: 1, brand: '正隆记', origin: '湖南湘潭', description: 'UI E2E 轮播与详情图用例',
+      images: [imgData, imgData], detailImages: [imgData, imgData], status: 'ON',
+      skus: [{ flavor: '原味', spec: '30/10', barcode: 'UIMD-' + Date.now(), price: 500, costPrice: 300, stock: 10 }]
+    }, admin)
+    mediaProdId = mediaCreated.data?.id || 0
+  } catch (em) {
+    console.log('多媒体用例数据准备失败：' + em.message)
   }
 } catch (e) {
   console.log('售后数据准备失败：' + e.message)
@@ -388,6 +401,49 @@ try {
     }
   } catch (e2) {
     await step('UC-22', '退货退款待寄回态填写寄回物流', false, e2.message)
+  }
+
+  // UC-23 商品详情主图多图轮播（H5-13）：横向滚动切换 + 圆点同步指示
+  // UC-24 商品详情图区块（H5-13）：detailImages 铺满展示
+  if (mediaProdId) {
+    await page.goto('http://localhost:10086/#/product/' + mediaProdId, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await sleep(1800)
+    const sw = await page.evaluate(() => ({
+      imgs: document.querySelectorAll('.d-swiper img').length,
+      dots: document.querySelectorAll('.d-dots i').length
+    }))
+    await page.evaluate(() => {
+      const el = document.querySelector('.d-swiper')
+      if (el) el.scrollLeft = el.clientWidth // 滑到第二张
+    })
+    await sleep(800)
+    const cur = await page.evaluate(() => {
+      const dots = [...document.querySelectorAll('.d-dots i')]
+      return dots.findIndex((d) => d.classList.contains('on'))
+    })
+    await step('UC-23', '商品详情主图多图轮播（滚动切换+圆点同步）', sw.imgs === 2 && sw.dots === 2 && cur === 1, JSON.stringify({ ...sw, cur }))
+    const di = await page.evaluate(() => ({
+      title: [...document.querySelectorAll('.detail-imgs-title')].some((el) => /商品详情/.test(el.innerText)),
+      n: document.querySelectorAll('.d-detail-imgs img').length
+    }))
+    await step('UC-24', '商品详情图区块渲染（detailImages 铺满展示）', di.title && di.n === 2, JSON.stringify(di))
+  } else {
+    await step('UC-23', '商品详情主图多图轮播', false, '多媒体用例商品创建失败')
+    await step('UC-24', '商品详情图区块渲染', false, '多媒体用例商品创建失败')
+  }
+
+  // UC-25 订单详情「订单进度」状态标签间距（回归：曾与标题贴在一起）
+  if (anyOrder) {
+    await page.goto('http://localhost:10086/#/order/' + anyOrder.orderNo, { waitUntil: 'domcontentloaded', timeout: 60000 })
+    await sleep(1800)
+    const tagGap = await page.evaluate(() => {
+      const tag = document.querySelector('.card-title .tag')
+      if (!tag) return { exists: false }
+      return { exists: true, ml: getComputedStyle(tag).marginLeft, visible: tag.getBoundingClientRect().height > 0 }
+    })
+    await step('UC-25', '订单详情「订单进度」状态标签间距（6px 左间距不被压缩）', tagGap.exists && tagGap.ml === '6px' && tagGap.visible, JSON.stringify(tagGap))
+  } else {
+    await step('UC-25', '订单详情状态标签间距', false, '无订单数据')
   }
 
   // UC-19 未登录访问受限页跳登录（携 redirect）

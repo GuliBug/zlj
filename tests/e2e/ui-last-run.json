@@ -1,25 +1,25 @@
 {
-  "runAt": "2026-10-26T07:11:11.891Z",
-  "total": 23,
-  "passed": 23,
+  "runAt": "2026-10-26T09:06:23.158Z",
+  "total": 26,
+  "passed": 26,
   "results": [
     {
       "id": "UC-01",
       "name": "H5 页面真实登录成功",
       "pass": true,
-      "detail": "MBR-19d9"
+      "detail": "MBR-77e7"
     },
     {
       "id": "UC-02",
       "name": "详情页加入购物车（购物车数量增加）",
       "pass": true,
-      "detail": "totalQuantity=2"
+      "detail": "totalQuantity=1"
     },
     {
       "id": "UC-02B",
       "name": "购物车页角标与数量同步",
       "pass": true,
-      "detail": "badge=2"
+      "detail": "badge=1"
     },
     {
       "id": "UC-03",
@@ -37,7 +37,7 @@
       "id": "UC-05",
       "name": "提交订单→立即支付→跳转支付结果",
       "pass": true,
-      "detail": "url=http://localhost:10086/#/pay-result/20261026151031408551?from=checkout"
+      "detail": "url=http://localhost:10086/#/pay-result/20261026170538765819?from=checkout"
     },
     {
       "id": "UC-06",
@@ -97,7 +97,7 @@
       "id": "UC-15",
       "name": "核销码页动态码展示（6 位）",
       "pass": true,
-      "detail": "code=896197"
+      "detail": "code=077862"
     },
     {
       "id": "UC-16",
@@ -121,7 +121,7 @@
       "id": "UC-20",
       "name": "H5 真实提交售后申请（含凭证压缩上传）并跳转详情",
       "pass": true,
-      "detail": "proofThumb=true url=http://localhost:10086/#/aftersale/AS202610261511038552"
+      "detail": "proofThumb=true url=http://localhost:10086/#/aftersale/AS202610261706105820"
     },
     {
       "id": "UC-21",
@@ -134,6 +134,24 @@
       "name": "退货退款待寄回态填写寄回物流推进到退款中（FD6 回归）",
       "pass": true,
       "detail": "form=true status=退款中 flow=买家已寄回商品"
+    },
+    {
+      "id": "UC-23",
+      "name": "商品详情主图多图轮播（滚动切换+圆点同步）",
+      "pass": true,
+      "detail": "{\"imgs\":2,\"dots\":2,\"cur\":1}"
+    },
+    {
+      "id": "UC-24",
+      "name": "商品详情图区块渲染（detailImages 铺满展示）",
+      "pass": true,
+      "detail": "{\"title\":true,\"n\":2}"
+    },
+    {
+      "id": "UC-25",
+      "name": "订单详情「订单进度」状态标签间距（6px 左间距不被压缩）",
+      "pass": true,
+      "detail": "{\"exists\":true,\"ml\":\"6px\",\"visible\":true}"
     },
     {
       "id": "UC-19",

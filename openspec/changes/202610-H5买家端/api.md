@@ -23,3 +23,4 @@
 
 - 401 由 api.js 全局拦截清除 token 并跳转登录页（携 redirect 回跳）；购物车角标经 totalQuantity 全局刷新。
 - 变更记录：2026-10-23 基线快照，无接口变更；影响下游：frontend-h5 全部页面与 TabBar。
+- 变更记录：2026-10-26 修订：仍无接口行为变更；补记 `GET /api/products/{id}` 响应字段 `detailImages[]`（管理端商品编辑已支持详情图，后端实际返回、详情页消费），主规格 AC-03 同步补记。

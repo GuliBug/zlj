@@ -36,6 +36,14 @@
       {{ d.description || DEFAULT_CRAFT }}
     </div>
 
+    <!-- 详情图（管理端随商品保存，最多 6 张） -->
+    <template v-if="detailImgs.length">
+      <div class="detail-imgs-title">商品详情</div>
+      <div class="d-detail-imgs">
+        <img v-for="(im, i) in detailImgs" :key="i" :src="im" alt="" loading="lazy" />
+      </div>
+    </template>
+
     <!-- 健康警示 -->
     <div class="warnbox">⚠️ 健康警示：{{ d.warnText || '长期过量咀嚼槟榔，有害口腔健康' }}。请理性消费，适量食用。本页面仅作商品信息展示，不含任何功效宣传。</div>
     <div class="minor">本商品{{ d.minorText || '不向未成年人销售' }}</div>
@@ -112,6 +120,7 @@ const cur = ref(0)
 
 const mainImage = computed(() => ((d.value && d.value.images) || [])[0] || (d.value && d.value.image) || '')
 const imgs = computed(() => (d.value && d.value.images) || [])
+const detailImgs = computed(() => ((d.value && d.value.detailImages) || []).filter(Boolean))
 function onSwipe() {
   const el = swiperEl.value
   if (el && el.clientWidth) cur.value = Math.round(el.scrollLeft / el.clientWidth)

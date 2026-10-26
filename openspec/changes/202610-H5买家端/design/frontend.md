@@ -42,6 +42,14 @@ store.js `applyDefaultStore` 固定默认门店；`selectedStoreId/checkoutAddre
 
 无疑问：页面消费接口与契约一致（映射见 api.md）。
 
+### FD8 详情页多媒体（2026-10-26 修订）
+
+主图区多图时用原生 scroll-snap 横向轮播（无第三方依赖，scroll 事件同步圆点指示），单图/破图回退 GoodsMedia 兜底；detailImages（管理端详情图，最多 6 张）以「商品详情」区块纵向铺满、懒加载展示，空字段不渲染区块。
+
+### 契约疑问（2026-10-26）
+
+`GET /api/products/{id}` 响应实际含 `detailImages[]` 而主规格 AC-03 未记载 → 经实测后端返回确认（详情图 2 张有效 base64），属契约文档遗漏非行为变更；已在 api.md 与主规格 AC-03 补记，无前后端代码改动。
+
 ## Risks / Trade-offs
 
 - [无骨架屏] → 页面加载态以空态/兜底呈现，演示场景可接受；弱网优化列为后续增量。

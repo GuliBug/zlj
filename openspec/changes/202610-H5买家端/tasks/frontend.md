@@ -17,3 +17,11 @@
 ## 3. 收尾门禁
 
 - [x] 3.1 `npm test`（vitest）通过；`node tests/e2e/ui-e2e.mjs` 全部用例 PASS（含 elementFromPoint 按钮可见性断言），结果并入 docs/测试报告.md
+
+## 4. 2026-10-26 修订：详情页多媒体与样式修复
+
+- [x] 4.1 商品详情大图区多图轮播（原生 scroll-snap + 底部圆点指示），单图/破图回退 GoodsMedia 兜底
+- [x] 4.2 商品详情新增「商品详情」区块渲染 detailImages（纵向铺满、懒加载，空字段不渲染）
+- [x] 4.3 样式修复：大图区铺满容器（.d-img .g-media）、订单详情状态标签与标题间距（.card-title .tag）
+- [x] 4.4 收尾：`cd frontend-h5 && npm run build` 零报错（2026-10-26 已验证）
+- [x] 4.5 E2E 回归锚点：接口级 TC-H5-13（买家详情回传 detailImages[]）+ UI 级 UC-23（主图轮播）/UC-24（详情图区块）/UC-25（状态标签间距）；docs/测试用例.md 与 docs/测试报告.md 同步（149 接口级 + 48 UI 级全 PASS）

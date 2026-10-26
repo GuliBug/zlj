@@ -24,7 +24,7 @@
 ### Requirement: AC-03 商品接口 /api/products
 - `GET /api/categories` → `data:[{id, name, parentId, children:[...]}]`
 - `GET /api/products?keyword=&categoryId=&page=&size=` → `data:{total, rows:[{id, name, image, priceMin(分), priceMax, sales, status(ON|OFF)}]}`（仅上架商品对买家可见；keyword 支持名称/条码/品牌）
-- `GET /api/products/{id}` → `data:{id, name, brand, origin, description, images[], categoryId, categoryName, status, warnText(固定「长期过量咀嚼槟榔，有害口腔健康」), minorText(固定「不向未成年人销售」), skus:[{id, flavor, spec, barcode, price(分), stock(可用), sales}]}`
+- `GET /api/products/{id}` → `data:{id, name, brand, origin, description, images[], detailImages[](详情图，最多 6 张，2026-10-26 补记), categoryId, categoryName, status, warnText(固定「长期过量咀嚼槟榔，有害口腔健康」), minorText(固定「不向未成年人销售」), skus:[{id, flavor, spec, barcode, price(分), stock(可用), sales}]}`
 - `GET /api/products/{id}/remind` → 到货提醒登记 → `data:"ok"`
 
 #### Scenario: 仅上架商品对买家可见
