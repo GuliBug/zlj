@@ -18,3 +18,9 @@
 
 - [x] 4.1 `cd backend && ./mvnw -q compile` 零报错
 - [x] 4.2 `node tests/e2e/e2e-mall.mjs` 全部用例 PASS，docs/测试用例.md 与 docs/测试报告.md 已更新
+
+## 5. 缺陷修复补录（2026-10-26）
+
+- [x] 5.1 （BUG-12）`OrderItem.image` 加 `@Lob`（base64 快照超 VARCHAR(255)，含图商品下单 500）（BD7）【FR-04-1｜验证：重启后含图商品下单成功】
+- [x] 5.2 接口级 E2E 补回归锚点：以 dataURL 主图商品下单成功且订单项快照图回读为 dataURL【FR-04-1｜验证：E2E PASS，快照图前缀 data:image/jpeg;base64】
+- [x] 5.3 收尾：编译零报错、后端重启后 `node tests/e2e/e2e-mall.mjs` 147/147 全 PASS；docs/测试报告.md 登记 BUG-12

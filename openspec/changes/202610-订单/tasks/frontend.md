@@ -10,3 +10,8 @@
 
 - [x] 2.1 views/order/index.vue：状态/关键字筛选、超时未发货高亮、发货弹窗、CSV 批量导入发货（失败回显）、订单导出
 - [x] 2.2 收尾：`cd frontend-web && npm run build` 零报错；`node tests/e2e/ui-e2e-web.mjs` 全 PASS
+
+## 3. 缺陷修复补录（2026-10-26）
+
+- [x] 3.1 （BUG-11）OrderDetail.vue `recv` computed 字段形态兼容：`x.address` 为字符串时构造 `{ receiver, phone, addressText }`，不再当对象取属性（FD7）【验证：UI E2E 订单详情收货信息无 undefined，快递单实拍 recv="售后预备 13900002222 湖南省湘潭市 UI 售后预备地址 1 号"】
+- [x] 3.2 收尾：`cd frontend-h5 && npm run build` 零报错；`node tests/e2e/ui-e2e.mjs` 22/22 PASS（UC-13 补强断言 noUndef=true）；docs/测试报告.md 登记 BUG-11

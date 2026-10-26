@@ -9,3 +9,8 @@
 
 - [x] 2.1 views/aftersale/index.vue：工单列表（状态筛选、超 48h 高亮）、审核弹窗（意见必填、通过/拒绝）、确认收货、退款（二次确认、金额只读）、流转时间线实时追加
 - [x] 2.2 收尾：`cd frontend-web && npm run build` 零报错；`node tests/e2e/ui-e2e-web.mjs` 全 PASS（售后审核按钮与弹窗断言）
+
+## 3. 缺口补齐补录（2026-10-26，FD6）
+
+- [x] 3.1 AftersaleDetail.vue：`RETURN_REFUND + WAIT_RETURN` 态展示「填写寄回物流」卡（公司/单号必填，提交后刷新转退款中）；已填时展示「寄回物流」卡（公司 · 单号）【FR-13-2｜验证：UI E2E UC-22 PASS，填写后状态转退款中+流转记录含「买家已寄回商品」+寄回物流卡回显】
+- [x] 3.2 收尾：`cd frontend-h5 && npm run build` 零报错；`node tests/e2e/ui-e2e.mjs` 23/23 PASS（含新增 UC-22）；docs/测试用例.md 与 docs/测试报告.md 已同步

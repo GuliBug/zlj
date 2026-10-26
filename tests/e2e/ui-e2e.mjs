@@ -240,7 +240,9 @@ try {
     await page.goto('http://localhost:10086/#/order/' + anyOrder.orderNo, { waitUntil: 'domcontentloaded', timeout: 60000 })
     await sleep(1800)
     const odOk = await page.evaluate(() => !!document.querySelector('.has-bottom-bar') && /¥/.test(document.body.innerText))
-    await step('UC-13', '订单详情渲染（金额明细+吸底操作栏）', odOk)
+    // BUG-11 回归锚点：详情页任何卡片不得渲染出字面量 undefined（收货信息曾因字段形态误用中招）
+    const noUndef = await page.evaluate(() => !/undefined/.test(document.body.innerText))
+    await step('UC-13', '订单详情渲染（金额明细+吸底操作栏+无 undefined 字样）', odOk && noUndef, `od=${odOk} noUndef=${noUndef}`)
   } else {
     await step('UC-13', '订单详情渲染（金额明细+吸底操作栏）', false, '无订单数据')
   }
@@ -336,6 +338,56 @@ try {
   } else {
     await step('UC-20', 'H5 真实提交售后申请并跳转详情', false, '无已完成订单（数据准备失败）')
     await step('UC-21', '售后详情流转记录（买家提交+系统受理）', false, '无已完成订单（数据准备失败）')
+  }
+
+  // UC-22 退货退款寄回物流填写（FD6 补录）：自造一笔新已完成订单（避开历史限次占用）→ 接口造 WAIT_RETURN 态工单 → H5 详情页填寄回物流推进到退款中
+  try {
+    const adminT22 = (await api('POST', '/admin-api/login', { username: 'admin', password: 'admin123' })).data?.token
+    const bt22 = (await api('POST', '/api/member/login', { phone: '13900002222', smsCode: '123456' })).data?.token
+    const pool22 = []
+    for (const p of (await api('GET', '/api/products?page=1&size=20')).data?.rows || []) {
+      const pd = await api('GET', `/api/products/${p.id}`)
+      for (const s of pd.data?.skus || []) if (s.stock > 3 && s.price < 500000) pool22.push(s)
+    }
+    const sku22 = pool22.sort((a, b) => a.price - b.price)[0]
+    let asNo22 = ''
+    if (bt22 && sku22) {
+      const addrId22 = ((await api('GET', '/api/addresses', undefined, bt22)).data || [])[0]?.id
+      const o22 = await api('POST', '/api/orders', { idempotentKey: 'uias22-' + Date.now(), fulfillmentType: 'EXPRESS', addressId: addrId22, items: [{ skuId: sku22.id, quantity: 1 }] }, bt22)
+      if (o22.code === 200) {
+        await api('POST', `/api/orders/${o22.data.orderNo}/pay`, undefined, bt22)
+        await api('POST', `/admin-api/orders/${o22.data.orderNo}/ship`, { company: '顺丰速运', no: 'SF22' + Date.now() }, adminT22)
+        await api('POST', `/api/orders/${o22.data.orderNo}/confirm`, undefined, bt22)
+        const created22 = await api('POST', '/api/aftersales', { orderNo: o22.data.orderNo, skuId: sku22.id, type: 'RETURN_REFUND', reason: '质量问题', description: '退货物流回填用', images: ['/img/uc22.jpg'] }, bt22)
+        if (created22.code === 200) asNo22 = created22.data?.afterSaleNo
+      }
+    }
+    if (asNo22) {
+      await api('POST', `/admin-api/aftersales/${asNo22}/audit`, { approve: true, opinion: '同意退货，请寄回' }, adminT22)
+      await page.evaluate((t) => localStorage.setItem('token', t), token)
+      await page.goto(`http://localhost:10086/#/aftersale/${asNo22}`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+      await sleep(1500)
+      const formShown = await page.evaluate(() => [...document.querySelectorAll('.card-title')].some((el) => /填写寄回物流/.test(el.innerText)))
+      let uc22Ok = formShown
+      let d22 = `form=${formShown}`
+      if (formShown) {
+        const inputs = await page.$$('.card input')
+        await inputs[0].type('顺丰速运')
+        await inputs[1].type('SF' + Date.now())
+        await page.evaluate(() => [...document.querySelectorAll('button')].find((b) => /提交寄回物流/.test(b.innerText))?.click())
+        await sleep(2000)
+        uc22Ok = await page.evaluate(() => {
+          const st = (document.querySelector('.status') || {}).innerText || ''
+          return /退款中/.test(st) && /买家已寄回商品/.test(document.body.innerText) && /寄回物流/.test(document.body.innerText)
+        })
+        d22 += ' status=退款中 flow=买家已寄回商品'
+      }
+      await step('UC-22', '退货退款待寄回态填写寄回物流推进到退款中（FD6 回归）', uc22Ok, d22)
+    } else {
+      await step('UC-22', '退货退款待寄回态填写寄回物流', false, '无可用的已完成订单/SKU（限次或无数据）')
+    }
+  } catch (e2) {
+    await step('UC-22', '退货退款待寄回态填写寄回物流', false, e2.message)
   }
 
   // UC-19 未登录访问受限页跳登录（携 redirect）

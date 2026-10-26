@@ -318,6 +318,33 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   )
   check('TC-FR-04-03', '库存不足下单失败并返回缺货信息', overStock.code !== 200 && /缺货|库存不足/.test(overStock.msg || ''), overStock.msg)
 
+  // BUG-12 回归锚点：base64 主图（>255 字符）+ 库存 1 的商品下单成功，订单项快照图回读仍为 dataURL
+  const bug12Img = 'data:image/jpeg;base64,' + 'A'.repeat(512)
+  const bug12Create = await req(
+    'POST',
+    '/admin-api/products',
+    {
+      name: 'BUG12 回归·库存1带图商品',
+      categoryId: 1,
+      brand: '正隆记',
+      origin: '湖南湘潭',
+      description: 'dataURL 快照落库回归用',
+      images: [bug12Img],
+      detailImages: [],
+      skus: [{ flavor: '原味', spec: '单包', barcode: 'BUG12-' + Date.now(), price: 990, costPrice: 500, stock: 1 }]
+    },
+    adminToken
+  )
+  const bug12Id = bug12Create.data?.id
+  await req('POST', '/admin-api/products/status', { ids: [bug12Id], status: 'ON' }, adminToken)
+  const bug12Sku = bug12Id ? (await req('GET', `/api/products/${bug12Id}`)).data?.skus?.[0] : null
+  const bug12Order = bug12Sku
+    ? await req('POST', '/api/orders', { idempotentKey: 'e2e-bug12-' + Date.now(), fulfillmentType: 'EXPRESS', addressId, items: [{ skuId: bug12Sku.id, quantity: 1 }] }, buyerToken)
+    : { code: 0, msg: 'BUG12 商品未创建' }
+  const bug12Detail = bug12Order.code === 200 ? await req('GET', `/api/orders/${bug12Order.data?.orderNo}`, undefined, buyerToken) : { data: null }
+  const bug12ItemImg = (bug12Detail.data?.items || [])[0]?.image || ''
+  check('TC-FR-04-01', 'BUG-12 回归：库存 1 的 dataURL 主图商品下单成功且快照图回读为 dataURL', bug12Order.code === 200 && bug12ItemImg.startsWith('data:image/'), `下单 ${bug12Order.msg}，快照图前缀 ${bug12ItemImg.slice(0, 22)}`)
+
   // 金额上限：6000 元 > 5000 元
   const expSkuId = (expDetail.data?.skus || [])[0]?.id ?? null
   const overLimit = expSkuId
@@ -523,6 +550,10 @@ const yuan = (fen) => (fen / 100).toFixed(2)
   await req('POST', `/api/orders/${pickupOrder.data.orderNo}/pay`, undefined, buyerToken)
   const pickupDetail = await req('GET', `/api/orders/${pickupOrder.data.orderNo}`, undefined, buyerToken)
   check('TC-FR-04-08', '自提支付后进入待自提', pickupDetail.data?.status === 'PICKUP_WAIT', pickupDetail.data?.statusText)
+  
+    // BUG-13 回归锚点：管理端待自提行返回门店名（核销工作台门店列数据源）
+    const pickupAdminRow = ((await req('GET', '/admin-api/orders?status=PICKUP_WAIT&page=1&size=20', undefined, adminToken)).data?.rows || []).find((r) => r.orderNo === pickupOrder.data.orderNo)
+    check('TC-ST-01', 'BUG-13 回归：待自提行返回门店名', pickupAdminRow?.storeName === '正隆记总号', `storeName=${pickupAdminRow?.storeName}`)
 
   const vc1 = await req('GET', `/api/orders/${pickupOrder.data.orderNo}/verify-code`, undefined, buyerToken)
   check('TC-AC-07', '动态核销码 6 位（每分钟刷新）', vc1.code === 200 && /^\d{6}$/.test(String(vc1.data?.code)), `码 ${vc1.data?.code}, 剩余 ${vc1.data?.expiresInSec}s`)

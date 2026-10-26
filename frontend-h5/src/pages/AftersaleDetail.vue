@@ -22,6 +22,27 @@
       </div>
     </div>
 
+    <!-- 寄回物流（已回填） -->
+    <div class="card" v-if="d.returnCompany || d.returnNo">
+      <div class="card-title">寄回物流</div>
+      <div style="font-size:12px;line-height:1.9">{{ d.returnCompany }} · {{ d.returnNo }}</div>
+    </div>
+
+    <!-- 填写寄回物流（退货退款待寄回态） -->
+    <div class="card" v-if="canReturn">
+      <div class="card-title">填写寄回物流</div>
+      <div class="field">
+        <label>物流公司 *</label>
+        <input v-model.trim="retForm.company" placeholder="如：顺丰速运" />
+      </div>
+      <div class="field">
+        <label>运单号 *</label>
+        <input v-model.trim="retForm.no" placeholder="请输入寄回运单号" />
+      </div>
+      <button class="btn" style="width:100%;margin-top:4px" @click="submitLogistics">提交寄回物流</button>
+      <div class="minor" style="margin-top:8px">提交后商家确认收货即触发退款</div>
+    </div>
+
     <!-- 流转记录时间线 -->
     <div class="card">
       <div class="card-title">流转记录</div>
@@ -65,6 +86,19 @@ const proofImgs = computed(() => {
 })
 function preview(src) {
   window.open(src, '_blank')
+}
+
+// 退货退款待寄回态：展示填写入口（FR-13-2，补录缺口：此前页面无入口致工单卡在待寄回）
+const canReturn = computed(() => d.value?.type === 'RETURN_REFUND' && d.value?.status === 'WAIT_RETURN')
+const retForm = ref({ company: '', no: '' })
+async function submitLogistics() {
+  if (!retForm.value.company || !retForm.value.no) {
+    showToast('物流公司与运单号必填')
+    return
+  }
+  await api.returnLogistics(d.value.afterSaleNo, retForm.value)
+  showToast('已提交寄回物流')
+  load()
 }
 
 function goBack() {

@@ -127,7 +127,11 @@ const pickupStore = computed(() => {
 })
 const recv = computed(() => {
   const x = d.value
-  return x.address || (x.receiver ? { receiver: x.receiver, phone: x.receiverPhone, addressText: x.addressText } : null)
+  if (!x) return null
+  // 后端详情为平铺字段：receiver / receiverPhone / address（收货地址文本）；对象形态仅为兼容预留（BUG-11：字符串曾被当对象取属性渲染出 undefined）
+  if (x.address && typeof x.address === 'object') return x.address
+  if (x.receiver) return { receiver: x.receiver, phone: x.receiverPhone, addressText: typeof x.address === 'string' ? x.address : x.addressText }
+  return null
 })
 const canAftersale = computed(() => ['COMPLETED', 'AFTER_SALE', 'SHIPPED'].includes(d.value.status))
 // 售后单进行中（待审核/待寄回/退款中）：吸底主按钮改为「查看售后进度」

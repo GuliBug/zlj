@@ -38,6 +38,13 @@ H5 侧：Checkout.vue（快递/自提分段、地址选用、积分开关、预�
 
 无疑问：订单/核销码字段与契约一致。
 
+### FD7 收货信息字段形态兼容（BUG-11 修复，2026-10-26 补录）
+
+- 现象：快递订单详情页「收货信息」卡渲染出字面量 `undefined`。
+- 根因：后端详情接口收货信息为平铺字段——`receiver` / `receiverPhone` / `address`（收货地址**文本**，下单时由 region + detail 拼好落库）；而 `OrderDetail.vue` 的 `recv` computed 把非空字符串 `x.address` 直接当对象返回，模板对字符串取 `.region` 得 `undefined` 拼出「undefined」。
+- 结论：`recv` computed 先判 `typeof x.address === 'object'`（对象形态兼容预留），字符串形态时构造 `{ receiver, phone, addressText }` 再交给模板；姓名/电话/地址三行渲染分支不变。
+- 契约疑问：无——契约口径即平铺字段，前端此前误用对象形态。
+
 ## Risks / Trade-offs
 
 - [支付结果页补一击支付] → 携 pay=1 进入时先调一次 pay（幂等，已支付忽略），兜住「列表去支付」直达场景。
@@ -45,3 +52,9 @@ H5 侧：Checkout.vue（快递/自提分段、地址选用、积分开关、预�
 ## Open Questions
 
 （无）
+
+## 修订记录
+
+| 日期 | 摘要 | 提出方 |
+|---|---|---|
+| 2026-10-26 | 补录 FD7：收货信息 undefined（BUG-11）修复口径，纯前端字段形态兼容 | 用户（实测发现） |

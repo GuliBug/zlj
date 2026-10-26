@@ -38,6 +38,13 @@ POST pay 仅 WAIT_PAY 可成功，重复调用拒绝并登记 DUPLICATE_PAY 告�
 
 状态流转集中在 OrderService 校验，非法流转抛异常（含对 CLOSED 再支付、未发货确认收货等回跳尝试），时间轴逐节点追加。
 
+### BD7 订单项快照图列为大文本（BUG-12 修复，2026-10-26 补录）
+
+- 现象：含 base64 主图商品（如 UI E2E WC-20 新增的商品）下单报「系统繁忙」，后端 `order_item` insert 抛 `Value too long for column "IMAGE CHARACTER VARYING(255)"`（快照 dataURL 约 21KB）。
+- 根因：真实图片上传（change：202610-真实图片上传）后 `Product.images` 存 dataURL，订单项快照图取 `firstImage(product.getImages())` 也是完整 dataURL；但 `OrderItem.image` 未同步加 `@Lob`，H2 建表仍为 VARCHAR(255)。4 个落库图片列（Product.images/detailImages、AfterSale.images、OrderItem.image）中唯独它漏掉。
+- 结论：`OrderItem.image` 加 `@Lob`（H2=CLOB，MySQL=LONGTEXT）；H2 内存库重启即重建 schema，无历史数据迁移。
+- 契约疑问：无——接口字段结构不变。
+
 ## Risks / Trade-offs
 
 - [模拟支付即成功] → 演示环境可接受；生产接入必须替换为回调 + 主动查询双通道（契约已留位）。
@@ -45,3 +52,9 @@ POST pay 仅 WAIT_PAY 可成功，重复调用拒绝并登记 DUPLICATE_PAY 告�
 ## Open Questions
 
 （无）
+
+## 修订记录
+
+| 日期 | 摘要 | 提出方 |
+|---|---|---|
+| 2026-10-26 | 补录 BD7：OrderItem.image 加 @Lob（BUG-12，base64 快照超 VARCHAR(255) 致下单 500） | 用户（实测下单失败） |

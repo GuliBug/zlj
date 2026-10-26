@@ -359,6 +359,14 @@ public class OrderService {
             row.put("payTime", o.getPayTime());
             row.put("createdAt", o.getCreatedAt());
             row.put("shipOverdue", overdue);
+            // 自提单带门店名（BUG-13：核销工作台待自提行门店列曾恒为 —）
+            if ("PICKUP".equals(o.getFulfillmentType()) && o.getStoreId() != null) {
+                try {
+                    row.put("storeName", storeService.getById(o.getStoreId()).getName());
+                } catch (Exception ignore) {
+                    // 门店可能被删除
+                }
+            }
             row.put("items", itemVos(orderItemRepository.findByOrderId(o.getId())));
             rows.add(row);
         }

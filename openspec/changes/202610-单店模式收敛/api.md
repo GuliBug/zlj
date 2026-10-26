@@ -19,3 +19,4 @@
 ## 变更记录
 
 - 2026-10-23 初稿：无接口变更，仅记录口径。影响下游：Web 管理端门店页（frontend-web views/store）。
+- 2026-10-26 补录：`GET /admin-api/orders` 行出参新增 `storeName`（仅 PICKUP 单返回，值为自提门店名；EXPRESS 单无该字段，向后兼容）。影响下游：Web 管理端核销工作台待自提行门店列。
