@@ -6,11 +6,16 @@
       <div class="cart-ico" @click="$router.push('/cart')">🛒<span class="badge" v-if="store.cartCount > 0">{{ store.cartCount > 99 ? '99+' : store.cartCount }}</span></div>
     </div>
 
-    <!-- 大图区（破图兜底：渐变红底 + 楷体首字） -->
+    <!-- 大图区（多图轮播；单图/破图兜底：渐变红底 + 楷体首字） -->
     <div class="d-img">
-      <GoodsMedia :image="mainImage" :name="d.name" height="250px" char-size="70px">
-        <span class="corner">{{ d.categoryName || '门店同款' }}</span>
-      </GoodsMedia>
+      <div class="d-swiper" v-if="imgs.length > 1" ref="swiperEl" @scroll.passive="onSwipe">
+        <img v-for="(im, i) in imgs" :key="i" :src="im" alt="" />
+      </div>
+      <GoodsMedia v-else :image="mainImage" :name="d.name" height="250px" char-size="70px" />
+      <span class="corner">{{ d.categoryName || '门店同款' }}</span>
+      <div class="d-dots" v-if="imgs.length > 1">
+        <i v-for="(im, i) in imgs" :key="i" :class="{ on: i === cur }"></i>
+      </div>
     </div>
 
     <!-- 价格 / 已售 -->
@@ -102,8 +107,15 @@ const pickedSkuId = ref(null)
 const qty = ref(1)
 const skuMode = ref('cart')
 const imgBroken = ref(false)
+const swiperEl = ref(null)
+const cur = ref(0)
 
 const mainImage = computed(() => ((d.value && d.value.images) || [])[0] || (d.value && d.value.image) || '')
+const imgs = computed(() => (d.value && d.value.images) || [])
+function onSwipe() {
+  const el = swiperEl.value
+  if (el && el.clientWidth) cur.value = Math.round(el.scrollLeft / el.clientWidth)
+}
 const pickedSku = computed(() => (d.value.skus || []).find(s => s.id === pickedSkuId.value))
 const minPrice = computed(() => {
   const skus = (d.value && d.value.skus) || []

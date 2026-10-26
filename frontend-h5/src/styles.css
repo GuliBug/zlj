@@ -51,6 +51,7 @@ input, textarea, select { font-family: inherit; font-size: 14px; border: none; o
   content: ''; width: 4px; height: 14px; background: var(--red);
   border-radius: 2px; margin-right: 6px;
 }
+.card-title .tag { margin-left: 6px; flex-shrink: 0; }
 
 /* 按钮 */
 .btn {
@@ -269,6 +270,13 @@ input, textarea, select { font-family: inherit; font-size: 14px; border: none; o
 
 /* ---- 详情页 ---- */
 .d-img { height: 250px; display: flex; align-items: center; justify-content: center; position: relative; }
+.d-img .g-media { width: 100%; height: 100%; }
+.d-swiper { display: flex; width: 100%; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; }
+.d-swiper img { flex: 0 0 100%; width: 100%; height: 100%; object-fit: cover; scroll-snap-align: start; }
+.d-swiper::-webkit-scrollbar { display: none; }
+.d-dots { position: absolute; bottom: 8px; left: 0; right: 0; display: flex; justify-content: center; gap: 5px; }
+.d-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .5); }
+.d-dots i.on { background: #fff; }
 .d-img .corner { position: absolute; left: 0; top: 0; background: var(--gold); color: #5d3a10; font-size: 10px; padding: 3px 12px; font-weight: 700; letter-spacing: 1px; z-index: 1; }
 .d-head { padding: 12px 12px 4px; display: flex; align-items: baseline; gap: 10px; }
 .d-name { font-family: var(--kai); font-size: 19px; letter-spacing: 1px; flex: 1; padding: 0 12px; font-weight: 700; }
