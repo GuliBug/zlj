@@ -15,3 +15,13 @@
 
 - [x] 3.1 `cd frontend-web && npm run build` 零报错
 - [x] 3.2 `node tests/e2e/ui-e2e-web.mjs` 全部用例 PASS（登录/七菜单页/违禁词拦截/无页面 JS 异常），结果并入 docs/测试报告.md
+
+## 4. 2026-11-05 修订：需求基线路径修正
+
+- [x] 4.1 原型基准路径由失效的 `D:/projects/zlj/需求/槟榔商城-Web管理端原型.html` 修正为仓库内相对路径 `docs/需求/槟榔商城-Web管理端原型.html`【验证：specs/管理端/frontend/spec.md 与 design/frontend.md 均已修正；结构基准描述未变】
+- [x] 4.2 收尾：纯文档变更，不触发 build / E2E 门禁；由 `openspec validate --all` 与引用可解析性自检覆盖
+
+## 5. 2026-11-05 修订：需求基线收敛（章节锚点化）
+
+- [x] 5.1 结构基准引用由 `docs/需求/槟榔商城-Web管理端原型.html` 改为 PRD v1.0 附录 A.2「Web 管理端信息架构」章节锚点【验证：specs/管理端/frontend/spec.md（WA-18）与 design/frontend.md（FD1）均已改为章节锚点；结构基准描述逐字未变】
+- [x] 5.2 收尾：纯文档变更，不触发 build / E2E 门禁；由 `openspec validate --all` 与引用可解析性自检覆盖

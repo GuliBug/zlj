@@ -25,3 +25,13 @@
 - [x] 4.3 样式修复：大图区铺满容器（.d-img .g-media）、订单详情状态标签与标题间距（.card-title .tag）
 - [x] 4.4 收尾：`cd frontend-h5 && npm run build` 零报错（2026-10-26 已验证）
 - [x] 4.5 E2E 回归锚点：接口级 TC-H5-13（买家详情回传 detailImages[]）+ UI 级 UC-23（主图轮播）/UC-24（详情图区块）/UC-25（状态标签间距）；docs/测试用例.md 与 docs/测试报告.md 同步（149 接口级 + 48 UI 级全 PASS）
+
+## 5. 2026-11-05 修订：需求基线路径修正
+
+- [x] 5.1 原型基准路径由失效的 `D:/projects/zlj/需求/槟榔商城-H5原型.html` 修正为仓库内相对路径 `docs/需求/槟榔商城-H5原型.html`【验证：specs/H5买家端/frontend/spec.md 已修正；结构基准描述未变】
+- [x] 5.2 收尾：纯文档变更，不触发 build / E2E 门禁；由 `openspec validate --all` 与引用可解析性自检覆盖
+
+## 6. 2026-11-05 修订：需求基线收敛（章节锚点化）
+
+- [x] 6.1 结构基准引用由 `docs/需求/槟榔商城-H5原型.html` 改为 PRD v1.0 附录 A.1「H5 商城端页面流程与关键页面线框」章节锚点【验证：specs/H5买家端/frontend/spec.md（H5-11）已改为章节锚点；结构基准描述逐字未变】
+- [x] 6.2 收尾：纯文档变更，不触发 build / E2E 门禁；由 `openspec validate --all` 与引用可解析性自检覆盖

@@ -1,6 +1,6 @@
 # AGENTS.md — 正隆记槟榔商城 OpenSpec 协作约定
 
-本仓库用 **OpenSpec（spec-driven schema）** 管理 SDD 流程与代码。规格权威来源是 `openspec/`，需求上游是 `D:/projects/zlj/需求/槟榔商城-PRD-v1.0.md`。
+本仓库用 **OpenSpec（spec-driven schema）** 管理 SDD 流程与代码。规格权威来源是 `openspec/`，需求上游是 `openspec/changes/archive/2026-11-05-202611-需求基线-v1.8/prd/槟榔商城-PRD-v1.0.md`（v1.8，单点存放于需求基线 change 的 `prd/` 目录）。
 
 > 本文件是约定摘要；可执行的规则以 `openspec/config.yaml` 为准（context / rules / operations）。
 

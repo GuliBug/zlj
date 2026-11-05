@@ -1,6 +1,6 @@
 # 正隆记 · 槟榔商城（zhenglongji-mall）
 
-> SPEC 驱动开发（OpenSpec · spec-driven）。需求上游：`D:/projects/zlj/需求/槟榔商城-PRD-v1.0.md`（v1.8）。
+> SPEC 驱动开发（OpenSpec · spec-driven）。需求上游：`openspec/changes/archive/2026-11-05-202611-需求基线-v1.8/prd/槟榔商城-PRD-v1.0.md`（v1.8）。
 > 架构与流程参考 `D:/projects/qingguoji-mall-main`（前后端分离 + OpenSpec）。
 
 ## 项目结构

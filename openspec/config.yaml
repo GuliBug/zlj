@@ -3,7 +3,7 @@ schema: zlj-team
 context: |
   项目：正隆记槟榔商城（zhenglongji-mall），槟榔品牌「正隆记」的线上商城，含 H5 商城端（买家）与 Web 管理端（门店运营）。
   目标：打通「浏览→加购→下单→支付→发货/自提核销→收货→售后」闭环，含掌柜卡会员体系与库存三维口径管理。
-  需求来源：D:/projects/zlj/需求/槟榔商城-PRD-v1.0.md（v1.8，FR-01~FR-16，含订单/售后状态机、资金安全三件套）。
+  需求来源：openspec/changes/archive/2026-11-05-202611-需求基线-v1.8/prd/槟榔商城-PRD-v1.0.md（v1.8，FR-01~FR-16，含订单/售后状态机、资金安全三件套）；PRD 单点存放于需求基线 change 的 prd/ 目录。
   技术栈：
     - 后端：Spring Boot 3.5 + JDK 21 + Spring Data JPA，开发用 H2、生产用 MySQL；
             若依（RuoYi）风格分层（common / framework / mall），统一 AjaxResult 响应。
