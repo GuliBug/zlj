@@ -25,6 +25,7 @@
 - `GET /api/categories` → `data:[{id, name, parentId, children:[...]}]`
 - `GET /api/products?keyword=&categoryId=&page=&size=` → `data:{total, rows:[{id, name, image, priceMin(分), priceMax, sales, status(ON|OFF)}]}`（仅上架商品对买家可见；keyword 支持名称/条码/品牌）
 - `GET /api/products/{id}` → `data:{id, name, brand, origin, description, images[], detailImages[](详情图，最多 6 张，2026-10-26 补记), categoryId, categoryName, status, warnText(固定「长期过量咀嚼槟榔，有害口腔健康」), minorText(固定「不向未成年人销售」), skus:[{id, flavor, spec, barcode, price(分), stock(可用), sales}]}`
+- 图片字段口径（2026-11-05 补记，BUG-10 修订）：`images[]` / `detailImages[]` / 售后凭证 `images[]` 每项为图片 URL 或 `data:image/...;base64,…`（dataURL）；后端多图以 `|` 拼接存大文本列（H2=CLOB / MySQL=LONGTEXT，`@Lob`），回显按 `|` 拆分还原数组（dataURL 前缀含逗号，禁用逗号分隔）
 - `GET /api/products/{id}/remind` → 到货提醒登记 → `data:"ok"`
 
 #### Scenario: 仅上架商品对买家可见
@@ -79,7 +80,7 @@
 
 ### Requirement: AC-08 售后接口 /api/aftersales
 - `GET /api/aftersales/reasons` → `data:[...]`（原因枚举：质量问题/少件漏发/发错货/不想要了/其他）
-- `POST /api/aftersales` body `{orderNo, type(REFUND_ONLY|RETURN_REFUND), reason, description?, images?[]}` → `data:{afterSaleNo}`；仅 COMPLETED/SHIPPED 订单可申请（签收后 7 天内）；每订单每 SKU 限 3 次
+- `POST /api/aftersales` body `{orderNo, type(REFUND_ONLY|RETURN_REFUND), reason, description?, images?[](1-3 项，每项为凭证 URL 或 dataURL，存储口径同上)}` → `data:{afterSaleNo}`；仅 COMPLETED/SHIPPED 订单可申请（签收后 7 天内）；每订单每 SKU 限 3 次
 - `GET /api/aftersales?page=&size=` → `data:{total, rows:[{afterSaleNo, orderNo, type, typeText, status, statusText, refundAmount, createdAt}]}`
 - `GET /api/aftersales/{no}` → 详情含 `flow:[{action, operator, remark, time}]`（流转时间线，只读不可删改）
 - `POST /api/aftersales/{no}/cancel` → 仅商家审核前可撤销
@@ -99,7 +100,7 @@
 
 ### Requirement: AC-10 管理端商品 /admin-api/products
 - `GET /admin-api/products?keyword=&status=&categoryId=&page=&size=` → `data:{total, rows:[...含 skus 摘要]}`
-- `POST /admin-api/products` body `{name, categoryId, brand, origin, description, images[], detailImages[], skus:[{flavor, spec, barcode, price, costPrice, stock}]}`（违禁词命中 code=500 msg 列出命中词；条码重复校验）
+- `POST /admin-api/products` body `{name, categoryId, brand, origin, description, images[], detailImages[], status(ON=提交上架买家端即时可见；OFF=保存草稿；缺省或非法值一律按 OFF 处理，2026-11-05 补记), skus:[{flavor, spec, barcode, price, costPrice, stock}]}`（违禁词命中 code=500 msg 列出命中词；条码重复校验）
 - `PUT /admin-api/products/{id}`（改价对未支付订单不生效；变更留审计）
 - `POST /admin-api/products/status` body `{ids:[], status(ON|OFF)}` → 批量上下架，留审计
 - `POST /admin-api/check-banned-words` body `{text}` → `data:{hits:[...]}`

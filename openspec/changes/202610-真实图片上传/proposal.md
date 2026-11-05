@@ -8,7 +8,7 @@
 
 ### 后端
 
-- `Product.images` / `Product.detailImages` / `AfterSale.images` 三个图片列改为大文本存储（`@Lob`，H2=CLOB / MySQL=LONGTEXT），接口字段结构不变；字段值从「URL 逗号串」扩展为「URL 或 dataURL 逗号串」（base64 字符集不含逗号，逗号拼接与拆分逻辑不变）。
+- `Product.images` / `Product.detailImages` / `AfterSale.images` 三个图片列改为大文本存储（`@Lob`，H2=CLOB / MySQL=LONGTEXT），接口字段结构不变；字段值从「URL 串」扩展为「URL 或 dataURL 串」，多图以 `|` 拼接存储（BD-02/BUG-10 修订：dataURL 的 `;base64,` 前缀含逗号，逗号分隔会劈断 dataURL）。
 
 ### 前端
 
@@ -58,3 +58,4 @@
 |---|---|---|
 | 2026-10-24 | 初稿定稿 | 用户 |
 | 2026-10-24 | E2E 首轮暴露 BUG-10：dataURL 前缀含逗号，逗号分隔劈断图片串；多图分隔符改 `|` 并全链路回归通过 | AI |
+| 2026-11-05 | 正文口径同步：Why 段遗留的「逗号串」旧表述改为 `|` 分隔，与 BD-02/api.md 对齐（verify 校验发现） | AI |

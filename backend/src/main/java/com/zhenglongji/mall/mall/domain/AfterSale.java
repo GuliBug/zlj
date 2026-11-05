@@ -43,7 +43,7 @@ public class AfterSale {
 
     private String description;
 
-    /** 凭证图，逗号分隔（URL 或 dataURL，base64 不含逗号）；大文本存储 */
+    /** 凭证图，| 分隔（URL 或 dataURL，base64 前缀含逗号故不可用逗号）；大文本存储 */
     @Lob
     private String images;
 
