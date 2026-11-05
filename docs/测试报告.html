@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>槟榔商城 测试报告 v1.0</title>
+<style>
+  :root {
+    --brand: #b3352c;
+    --brand-dark: #8f231c;
+    --gold: #c9a063;
+    --ink: #2b2620;
+    --muted: #7a7166;
+    --line: #e8e0d4;
+    --bg: #faf7f2;
+    --ok: #2e7d4f;
+    --ok-bg: #e8f5ee;
+    --warn-bg: #fdf3e3;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    padding-bottom: 60px;
+  }
+  .hero {
+    background: linear-gradient(135deg, var(--brand-dark) 0%, var(--brand) 60%, #c8503f 100%);
+    color: #fff;
+    padding: 40px 24px 34px;
+    text-align: center;
+  }
+  .hero .seal {
+    display: inline-block;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    border-radius: 6px;
+    padding: 2px 14px;
+    font-size: 13px;
+    letter-spacing: 4px;
+    margin-bottom: 14px;
+  }
+  .hero h1 { font-size: 30px; letter-spacing: 2px; }
+  .hero .sub { margin-top: 10px; font-size: 14px; opacity: .92; }
+  .hero .sub code {
+    background: rgba(255,255,255,.15); padding: 2px 8px; border-radius: 4px; font-size: 13px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+  .cards {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 14px; margin: -26px auto 0; position: relative; z-index: 2;
+  }
+  .card {
+    background: var(--card); border-radius: 12px; padding: 18px 20px;
+    box-shadow: 0 6px 18px rgba(90, 50, 30, .10); text-align: center;
+    border-top: 3px solid var(--brand);
+  }
+  .card .num { font-size: 30px; font-weight: 700; color: var(--brand-dark); }
+  .card .num small { font-size: 15px; color: var(--muted); font-weight: 400; }
+  .card .label { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .card.ok .num { color: var(--ok); }
+  section { margin-top: 40px; }
+  h2 {
+    font-size: 20px; color: var(--brand-dark); margin-bottom: 14px;
+    padding-left: 12px; border-left: 5px solid var(--brand);
+  }
+  h2 .en { font-size: 12px; color: var(--muted); font-weight: 400; margin-left: 8px; letter-spacing: 1px; }
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 20px 22px; box-shadow: 0 2px 8px rgba(90,50,30,.05);
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: #f6efe6; color: var(--brand-dark); white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: #fdf9f3; }
+  .tag {
+    display: inline-block; padding: 1px 10px; border-radius: 999px;
+    font-size: 12px; font-weight: 600; white-space: nowrap;
+  }
+  .tag.pass { background: var(--ok-bg); color: var(--ok); }
+  .tag.brand { background: #f9e9e6; color: var(--brand-dark); }
+  .tag.gold { background: var(--warn-bg); color: #9a6b1f; }
+  .total-row td { background: #f6efe6; font-weight: 700; color: var(--brand-dark); }
+  .bar-cell { min-width: 180px; }
+  .bar { background: #eee5d8; border-radius: 999px; height: 10px; overflow: hidden; }
+  .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--brand), #d9695a); border-radius: 999px; }
+  .conclusion {
+    border-left: 4px solid var(--ok); background: var(--ok-bg);
+    border-radius: 0 10px 10px 0; padding: 14px 18px; margin-top: 14px; font-size: 15px;
+  }
+  .conclusion b { color: var(--ok); }
+  .risk-note {
+    border-left: 4px solid var(--gold); background: var(--warn-bg);
+    border-radius: 0 10px 10px 0; padding: 12px 18px; margin-top: 12px; font-size: 14px;
+  }
+  ul.clean { padding-left: 22px; }
+  ul.clean li { margin: 8px 0; }
+  ul.clean b { color: var(--brand-dark); }
+  code { background: #f4ede2; padding: 1px 6px; border-radius: 4px; font-size: 13px; color: #6d4a2f; }
+  .bug-id { font-weight: 700; color: var(--brand-dark); white-space: nowrap; }
+  footer {
+    margin-top: 50px; text-align: center; color: var(--muted); font-size: 12.5px;
+    border-top: 1px dashed var(--line); padding-top: 18px;
+  }
+  @media print {
+    body { background: #fff; }
+    .hero { border-radius: 0; }
+    .panel, .card { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="seal">正隆記 · 始于一九一六</div>
+  <h1>槟榔商城 测试报告（v1.0）</h1>
+  <div class="sub">
+    项目：正隆记槟榔商城｜需求基线：PRD v1.8｜执行方式：<code>node tests/e2e/e2e-mall.mjs</code>（真实 HTTP 全链路）
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="cards">
+    <div class="card ok">
+      <div class="num">149<small> / 149</small></div>
+      <div class="label">接口级端到端断言</div>
+    </div>
+    <div class="card ok">
+      <div class="num">48<small> / 48</small></div>
+      <div class="label">UI 级端到端（H5 26 + Web 22）</div>
+    </div>
+    <div class="card ok">
+      <div class="num">12<small> / 12</small></div>
+      <div class="label">单元测试（vitest 3.2.4）</div>
+    </div>
+    <div class="card">
+      <div class="num">100.0<small>%</small></div>
+      <div class="label">通过率（2026/10/26 17:06 执行）</div>
+    </div>
+  </div>
+
+  <section>
+    <h2>一、结论摘要 <span class="en">SUMMARY</span></h2>
+    <div class="panel">
+      <div class="conclusion">
+        <b>核心交易闭环全部通过：</b>浏览 → 加购 → 下单 → 支付 → 发货 / 自提核销 → 收货 → 售后 → 退款，
+        三层测试体系（单元 / UI 级 / 接口级）全部通过，<b>具备演示与联调条件</b>。
+      </div>
+      <ul class="clean" style="margin-top:14px">
+        <li>执行时间：2026/10/26 17:06:00；用例总数 <b>149</b>（接口级），通过 <b>149</b>，失败 <b>0</b>。</li>
+        <li>UI 级端到端 <b>48/48</b>：含售后真实申请（凭证压缩上传+回显）、审核退款、退货退款待寄回态填写寄回物流推进到退款中（UC-22）、新增商品三步提交上架（主图压缩上传）、商品详情多图轮播与详情图展示（UC-23~UC-25，H5-13）。</li>
+        <li>未通过项：无。</li>
+      </ul>
+      <div class="risk-note">
+        <b>阻塞风险：</b>微信/支付宝槟榔类目报备（RK-01）未决，支付与短信为模拟通道，不影响状态机 / 幂等 / 审计逻辑验证。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>二、测试范围 <span class="en">SCOPE</span></h2>
+    <div class="panel">
+      <table>
+        <thead><tr><th style="width:140px">端</th><th>覆盖模块</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag brand">后端 API</span></td><td>会员登录 / 会员中心 / 积分、商品与分类、购物车、地址、下单 / 支付 / 取消 / 确认、自提核销、售后全链路、管理端商品 / 库存 / 门店 / 订单 / 售后 / 会员 / 看板 / 审计 / 告警</td></tr>
+          <tr><td><span class="tag brand">H5 商城端</span></td><td>首页 / 分类搜索 / 详情 / 购物车 / 结算 / 支付结果 / 订单 / 售后 / 地址 / 会员中心（构建通过，接口与契约一致）</td></tr>
+          <tr><td><span class="tag brand">Web 管理端</span></td><td>登录 / 工作台 / 商品（SKU 笛卡尔积、批量上下架、违禁词）/ 库存三页签 / 门店核销 / 订单发货与导出 / 售后时间线 / 会员 / 审计告警（构建通过）</td></tr>
+          <tr><td><span class="tag gold">合规底线</span></td><td>警示语 / 未成年人提示硬编码、违禁词阻断、资金与上下架审计</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>三、模块统计 <span class="en">MODULE STATS</span></h2>
+    <div class="panel">
+      <table>
+        <thead><tr><th>模块</th><th style="width:80px">用例数</th><th style="width:80px">通过</th><th style="width:100px">通过率</th><th class="bar-cell">可视化</th></tr></thead>
+        <tbody>
+          <tr><td>注册登录</td><td>2</td><td>2</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>商品浏览与详情</td><td>16</td><td>16</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>购物车</td><td>7</td><td>7</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>下单与支付（资金核心）</td><td>10</td><td>10</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>订单管理（买家）</td><td>4</td><td>4</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>售后（买家侧）</td><td>8</td><td>8</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>会员等级与积分</td><td>7</td><td>7</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>地址与个人中心</td><td>6</td><td>6</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>商品管理（Web 管理端）</td><td>5</td><td>5</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>库存管理</td><td>12</td><td>12</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>订单管理（商家侧）</td><td>5</td><td>5</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>售后处理（商家侧）</td><td>8</td><td>8</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>会员管理（Web 管理端）</td><td>5</td><td>5</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>数据看板</td><td>1</td><td>1</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>自提动态核销码</td><td>2</td><td>2</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>门店与到店核销</td><td>4</td><td>4</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>订单状态机</td><td>1</td><td>1</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr><td>平台安全 / 审计 / 资损监控</td><td>8</td><td>8</td><td><span class="tag pass">100%</span></td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+          <tr class="total-row"><td>合计</td><td>149</td><td>149</td><td>100.0%</td><td class="bar-cell"><div class="bar"><i style="width:100%"></i></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>四、本轮发现并修复的缺陷 <span class="en">DEFECTS FIXED</span></h2>
+    <div class="panel">
+      <table>
+        <thead><tr><th style="width:88px">编号</th><th style="width:34%">现象</th><th style="width:26%">根因</th><th>修复</th><th style="width:110px">回归结果</th></tr></thead>
+        <tbody>
+          <tr><td class="bug-id">BUG-01</td><td>收货地址手机号可填非法值</td><td>AddressService 未做手机号格式校验</td><td>增加 <code>^1\d{10}$</code> 与必填校验（FR-08-1）</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-02</td><td>售后时间线缺少「系统受理」节点，双端时间线不完整</td><td>申请时仅写入「买家提交」一条流转记录</td><td>申请成功后追加「系统受理」记录（FR-06-5）</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-03</td><td>新增商品 / 盘点单接口不返回主键，前端无法定位与二次操作</td><td>Controller 返回 <code>AjaxResult&lt;Void&gt;</code></td><td>返回 <code>{id}</code>（AC-10 / AC-11）</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-04</td><td>重复执行 E2E 时商品条码冲突</td><td>测试数据使用固定条码</td><td>条码改时间戳唯一值（用例缺陷，非产品缺陷）</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-05</td><td>盘点单提交人自确认报「系统繁忙」而非明确原因</td><td>请求主键为空导致类型转换异常</td><td>创建接口返回 id 后按正常路径校验，提示「提交人不得同时担任确认人」</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-06</td><td>购物车「结算」按钮被底部 TabBar 完全遮挡，无法下单（用户实测发现，UI 级用例 UC-03 拦截）</td><td>.bottom-bar 与 TabBar 均 fixed bottom:0 且 TabBar z-index 更高</td><td>新增规则 <code>.has-tabbar .bottom-bar { bottom: 52px }</code> 抬升结算栏并同步底部留白（H5-09）</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-07</td><td>订单详情「商品清单」「收货信息」区块空白（用户实测发现）</td><td>后端订单详情接口未返回 items 明细</td><td>orderDetailVo 补充 items（skuId / name / image / flavor / spec / price / quantity / subtotal）</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-08</td><td>H5 / Web 页面与交互原型差距大（用户实测反馈）</td><td>实现未以原型为基准逐页对齐</td><td>双端按原型逐页重做（H5 品牌导航 / 四宫格 / 分档 / 核销码页 / 4Tab；Web 7 菜单 / 三步新增商品 / 今日概览 / 会员等级卡），种子数据同步对齐原型门店 / 分类 / 商品</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-09</td><td>管理端「提交上架」成功但商品实际为已下架（UI 级用例 WC-20 截图证据暴露，用户复核发现）</td><td>双层根因：① <code>ProductBody</code> record 缺 <code>status</code> 字段，前端传入在 DTO 层被丢弃；② <code>ProductService.create()</code> 硬编码 <code>setStatus("OFF")</code></td><td>DTO 补全 <code>status</code> 字段；create 按 <code>body.status()</code> 落库（仅 <code>ON</code> 生效，非法值安全兜底为草稿）；WC-20 断言加强为校验 <code>status === 'ON'</code>（FR-10-1，change：202610-提交上架生效）</td><td><span class="tag pass">通过（status=ON）</span></td></tr>
+          <tr><td class="bug-id">BUG-10</td><td>真实图片上传后售后凭证回显为占位图（UI 级用例 UC-21 首轮断言暴露：proofSrc 为 SVG 兜底图而非上传的 dataURL）</td><td>dataURL 的 <code>;base64,</code> 前缀本身含逗号，后端多图 <code>split(",")</code> 把 dataURL 劈成两段废串，触发全局 img error 兜底换占位图</td><td>多图分隔符 <code>,</code> → <code>|</code>（base64 与 dataURL 前缀均不含 <code>|</code>）：ProductService / AfterSaleService 的 join+split、OrderService.firstImage、CartService.first、DemoDataInitializer 种子图；H5 详情回显兼容数组 / 字符串（FR-06-2 / FR-10-1，change：202610-真实图片上传）</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-11</td><td>快递订单详情「收货信息」卡渲染出字面量 undefined（用户实测发现）</td><td>后端详情收货信息为平铺字段；H5 <code>OrderDetail.vue</code> 的 <code>recv</code> computed 把非空字符串 <code>x.address</code> 直接当对象用，模板对字符串取 <code>.region</code> 得 undefined 拼出「undefined」</td><td><code>recv</code> computed 字段形态兼容：字符串形态构造 <code>{ receiver, phone, addressText }</code> 再交模板（FD7，change：202610-订单补录）；UC-13 断言补强「详情页无 undefined 字样」作回归锚点</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td class="bug-id">BUG-12</td><td>库存 1 的带图商品（base64 主图）下单报「系统繁忙」（用户实测 curl 发现）</td><td>订单项快照图取 <code>firstImage(product.getImages())</code>，分隔符修复后为完整 dataURL（约 21KB）；<code>OrderItem.image</code> 未同步加 <code>@Lob</code>，H2 建表仍 VARCHAR(255)，insert 抛 Value too long → 500。4 个落库图片列中唯独它漏掉</td><td><code>OrderItem.image</code> 加 <code>@Lob</code>（BD7，change：202610-订单补录）；接口级 E2E 新增回归锚点：dataURL 主图 + 库存 1 商品下单成功且订单项快照图回读为 dataURL（TC-FR-04-01）</td><td><span class="tag pass">通过（147/147）</span></td></tr>
+          <tr><td class="bug-id">流程缺口</td><td>退货退款工单卡在「待买家寄回」，H5 无填写寄回物流入口，流程无法推进（用户实测发现）</td><td>规格 FR-13-2 与后端接口（return-logistics）均已实现，但 change：202610-售后 的前端任务清单 1.3 漏列该项，AftersaleDetail.vue 从未接入</td><td>详情页按状态渲染：WAIT_RETURN 态展示「填写寄回物流」卡（公司 / 单号必填，提交转退款中）；已填时展示「寄回物流」卡（FD6，change：202610-售后补录）；新增 UI 用例 UC-22 作回归锚点</td><td><span class="tag pass">通过（23/23）</span></td></tr>
+          <tr><td class="bug-id">BUG-13</td><td>管理端核销工作台「待自提」行门店列恒为「—」（用户实测发现）</td><td>管理端订单列表 <code>adminPage</code> 行出参不含门店字段（详情接口有 store 对象但列表没有），前端兜底链永远落到「—」；已核销记录正常（VerifyRecord 落库时存了 storeName）</td><td><code>adminPage</code> 对 PICKUP 行出参补 <code>storeName</code>（BD3，change：202610-单店模式收敛补录，向后兼容）；接口级 E2E 新增回归锚点 TC-148</td><td><span class="tag pass">通过（148/148）</span></td></tr>
+          <tr><td class="bug-id">BUG-14</td><td>H5 商品详情多媒体四连缺陷（用户实测发现）：① 多张主图不轮播只显示第一张；② 大图区两侧留白不铺满；③ 管理端配置的详情图 detailImages 全然不展示；④ 订单详情「订单进度」标题与状态标签（待发货）贴在一起</td><td>① 详情页仅取 <code>images[0]</code> 渲染；② <code>.d-img</code> flex 容器内 <code>.g-media</code> 子项未拉伸；③ 后端返回 <code>detailImages[]</code> 但 H5 从未消费该字段（主规格 AC-03 也漏记）；④ <code>.card-title .tag</code> 无左间距</td><td>① 详情页大图区改原生 scroll-snap 轮播 + 底部圆点指示，单图 / 破图回退 GoodsMedia；② <code>.d-img .g-media { width/height: 100% }</code>；③ 新增「商品详情」区块纵向铺满懒加载 detailImages；④ <code>.card-title .tag { margin-left: 6px }</code>（H5-13，change：202610-H5买家端 增量）；契约补记 GET /api/products/{id} 响应 detailImages[]</td><td><span class="tag pass">通过（UC-23/24/25 + TC-H5-13，149/149）</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>五、测试基建与质量门禁 <span class="en">QUALITY GATES</span>（2026-10-23 新增）</h2>
+    <div class="panel">
+      <table>
+        <thead><tr><th>门禁</th><th>工具与版本</th><th style="width:280px">结果</th></tr></thead>
+        <tbody>
+          <tr><td>单元测试</td><td>vitest 3.2.4（h5 + web 双端 devDependencies 固化）</td><td><span class="tag pass">12/12 通过</span>（h5 5 项 / web 7 项，npm test）</td></tr>
+          <tr><td>UI 级端到端</td><td>puppeteer 24.10.0（依赖固化于 frontend-web）</td><td><span class="tag pass">H5 26/26 + Web 22/22 = 48/48 通过</span></td></tr>
+          <tr><td>接口级端到端</td><td>node 原生 fetch，149 断言</td><td><span class="tag pass">149/149 通过</span></td></tr>
+          <tr><td>代码规范</td><td>ESLint 9 flat config + Prettier 3.4.2（配置对齐参考工程）</td><td><span class="tag pass">双端 lint 0 error 0 warning</span></td></tr>
+          <tr><td>后端规范审查</td><td>人工走读 + 静态扫描</td><td><span class="tag gold">2 项问题当场修复</span>（分层违规 / 异常外泄，详见 docs/后端代码审查报告.md）</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>六、关键风险验证结论 <span class="en">RISK VERIFICATION</span></h2>
+    <div class="panel">
+      <table>
+        <thead><tr><th style="width:150px">风险</th><th>验证点</th><th style="width:220px">结论</th></tr></thead>
+        <tbody>
+          <tr><td>超卖（RK-05）</td><td>可用库存条件更新预占；超量下单整单回滚；冻结后不可购</td><td><span class="tag pass">通过</span> 缺货返回剩余可购数量</td></tr>
+          <tr><td>资损（RK-04）</td><td>重复支付被拒并登记 DUPLICATE_PAY 告警；退款幂等；单笔 &gt;5000 元拦截</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td>合规（RK-03）</td><td>违禁词（提神 / 醒脑 / 保健 / 功效）命中阻断；警示语与未成年人提示强返</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td>库存准确性</td><td>三维恒等式 实物 = 可用 + 预占 + 冻结；入库 / 冻结 / 盘点 / 退款流水可追溯</td><td><span class="tag pass">通过</span></td></tr>
+          <tr><td>操作审计</td><td>上下架、阈值、积分调整写审计日志（操作人 / IP / 前后值）</td><td><span class="tag pass">通过</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>七、未覆盖项与后续建议 <span class="en">NEXT STEPS</span></h2>
+    <div class="panel">
+      <ul class="clean">
+        <li><b>支付 / 短信真实通道：</b>待 RK-01 类目报备通过后接入，替换通道实现并重跑资金链路用例。</li>
+        <li><b>15 分钟超时关单：</b>建议提供可配置超时参数（当前 30s 扫描 + 15 分钟阈值），联调环境用短阈值回归。</li>
+        <li><b>并发压测：</b>建议 100 QPS 下单压测，验证乐观锁与连接池。</li>
+        <li><b>T+1 对账：</b>接入渠道账单文件解析，差异表与告警闭环。</li>
+        <li><b>兼容性：</b>H5 需真机回归 iOS Safari 14+ / 微信内置浏览器。</li>
+        <li><b>RBAC：</b>本期按决策移除，多角色授权依赖人工约定，团队扩编前建议恢复。</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>八、执行证据 <span class="en">EVIDENCE</span></h2>
+    <div class="panel">
+      <ul class="clean">
+        <li><b>原始结果：</b><code>tests/e2e/last-run.json</code>（149 条断言明细，含实际返回值摘要）、<code>tests/e2e/ui-last-run.json</code> 与 <code>tests/e2e/ui-web-last-run.json</code>（UI 级 48 条明细）</li>
+        <li><b>UI 截图证据：</b>每个用例断言点自动截图，H5 归档于 <code>tests/e2e/screenshots/h5/</code>，Web 归档于 <code>tests/e2e/screenshots/web/</code>，共 48 张；图片上传用例使用真实测试图 <code>tests/e2e/assets/sample.png</code>（前端 canvas 压缩为 JPEG base64 提交，回显截图可辨识上传图与种子占位图差异）</li>
+        <li><b>用例清单：</b><code>docs/测试用例.md</code></li>
+        <li><b>契约基线：</b><code>openspec/specs/接口契约/backend/spec.md</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    正隆记槟榔商城 · 测试报告 v1.0 ｜ 数据与 docs/测试报告.md 同源（2026/10/26 执行批次）｜ 本文件由 Markdown 报告渲染生成
+  </footer>
+
+</div>
+</body>
+</html>
