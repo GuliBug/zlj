@@ -85,3 +85,10 @@ SHALL 支持快递配送与到店自提（免运费、选门店）；自提订�
 #### Scenario: 售后进度合并展示
 - **WHEN** 订单存在进行中的售后单且买家查询详情
 - **THEN** 时间轴含「售后 · 」前缀节点，aftersale 摘要返回售后单号/状态/类型/退款金额
+
+### Requirement: FR-04-4 订单取消
+买家 SHALL 可取消本人 WAIT_PAY 订单：取消后订单置 CLOSED、释放预占库存（生成 RELEASE 流水）并追加时间轴节点；非 WAIT_PAY 状态取消被状态机拦截。
+
+#### Scenario: 取消释放预占
+- **WHEN** 买家取消待支付订单
+- **THEN** 订单关闭，对应 SKU 可用库存回补并生成 RELEASE 流水
